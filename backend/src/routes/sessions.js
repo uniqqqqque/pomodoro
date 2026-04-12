@@ -13,7 +13,9 @@ router.post("/", authMiddleware, async (req, res) => {
     );
     return res.status(201).json({ message: "Session created" });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({ message: "Server error" });
+    
   }
 });
 
