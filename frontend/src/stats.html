@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../dist/output.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/cal-heatmap/dist/cal-heatmap.css"
+    />
+    <title>Pomodoro</title>
+  </head>
+  <body class="flex min-h-screen flex-col bg-slate-900">
+    <div class="mx-auto my-auto flex w-3xl max-w-3xl flex-col gap-4">
+      <div
+        class="flex items-center justify-between rounded-2xl bg-slate-800 p-8"
+      >
+        <a href="index.html">
+          <button
+            id="statsBtn"
+            class="mx-4 w-50 rounded-lg bg-orange-400 p-3 text-xl font-semibold text-white transition hover:bg-orange-500"
+          >
+            Timer
+          </button>
+        </a>
+        <h1 class="mx-4 mb-6 text-center text-2xl font-bold text-white">
+          🍅⏰
+        </h1>
+        <button
+          id="logoutBtn"
+          class="mx-4 w-50 rounded-lg bg-red-400 p-3 text-xl font-semibold text-white transition hover:bg-red-500"
+        >
+          Logout
+        </button>
+      </div>
+      <div
+        class="flex flex-row items-center justify-center gap-6 rounded-2xl bg-slate-800 p-8"
+      >
+        <div
+          class="flex flex-col items-center justify-center gap-6 rounded-2xl bg-slate-800 p-8"
+        >
+          <span class="text-xl font-semibold text-slate-400">Total</span>
+          <span
+            id="total"
+            class="my-10 text-5xl font-semibold text-white"
+          ></span>
+        </div>
+        <div
+          class="flex flex-col items-center justify-center gap-6 rounded-2xl bg-slate-800 p-8"
+        >
+          <span class="text-xl font-semibold text-slate-400">Today</span>
+          <span id="today" class="my-10 text-5xl font-semibold text-white"
+            >0</span
+          >
+        </div>
+        <div
+          class="flex flex-col items-center justify-center gap-6 rounded-2xl bg-slate-800 p-8"
+        >
+          <span class="text-xl font-semibold text-slate-400">Week</span>
+          <span id="week" class="my-10 text-5xl font-semibold text-white"
+            >0</span
+          >
+        </div>
+      </div>
+      <div
+        class="flex flex-col items-center justify-center gap-6 rounded-2xl bg-slate-800 p-8"
+      >
+        <span class="text-xl font-semibold text-slate-400">Activity</span>
+        <canvas id="activity" class="my-10 text-5xl font-semibold text-white"
+          >0</canvas
+        >
+      </div>
+      <div
+        class="flex flex-col items-center justify-center gap-6 rounded-2xl bg-slate-800 p-8"
+      >
+        <span class="text-xl font-semibold text-slate-400">Heatmap</span>
+        <div id="heatmap" class="my-10 text-5xl font-semibold text-white"></div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/cal-heatmap/dist/cal-heatmap.min.js"></script>
+    <script src="./js/api.js"></script>
+    <script src="./js/stats.js"></script>
+  </body>
+</html>

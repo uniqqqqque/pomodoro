@@ -1,3 +1,7 @@
+if (!localStorage.getItem("token")) {
+  window.location.href = "login.html";
+}
+
 let mode = "work";
 let pomodoroCount = 0;
 const workTime = 1500;
@@ -26,15 +30,22 @@ function updateDisplay() {
   document.getElementById("mode").textContent = modeNames[mode];
 }
 
-function startTimer() {
+async function startTimer() {
   if (isRunning) return;
   isRunning = true;
-  intervalId = setInterval(() => {
+  intervalId = setInterval(async () => {
     timeLeft--;
     updateDisplay();
     if (timeLeft <= 0) {
       clearInterval(intervalId);
       isRunning = false;
+      if (mode === "work") {
+        await apiFetch("/sessions", "POST", {
+          duration: Math.round(workTime / 60),
+          type: "work",
+          completed: true,
+        });
+      }
       switchMode();
       updateDisplay();
     }
@@ -72,6 +83,13 @@ function switchMode() {
   }
 }
 
+function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "login.html";
+}
+
 document.getElementById("startBtn").addEventListener("click", startTimer);
 document.getElementById("pauseBtn").addEventListener("click", pauseTimer);
 document.getElementById("resetBtn").addEventListener("click", resetTimer);
+// document.getElementById("statsBtn").addEventListener("click", stats);
+document.getElementById("logoutBtn").addEventListener("click", logout);
