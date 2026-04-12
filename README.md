@@ -18,4 +18,4 @@ A full-stack Pomodoro productivity app with statistics and user authentication.
 
 ## Live Demo
 
-[pomodoro.poliscuks.id.lv](https://pomodoro.poliscuks.id.lv)
+[pomodoro.poliscuks.id.lv](https://pomodoro.poliscuks.id.lv/login.html)
