@@ -25,5 +25,5 @@ completed BOOL,
 started_at TIMESTAMP,
 ended_at TIMESTAMP,
 FOREIGN KEY (user_id) REFERENCES users(id),
-FOREIGN KEY (task_id) REFERENCES tasks(id),
+FOREIGN KEY (task_id) REFERENCES tasks(id)
 )
