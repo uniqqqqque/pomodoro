@@ -74,4 +74,10 @@ async function loadStats() {
   });
 }
 
+function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "login.html";
+}
+
 loadStats();
+document.getElementById("logoutBtn").addEventListener("click", logout);
