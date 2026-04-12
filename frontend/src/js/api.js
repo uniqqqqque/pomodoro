@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000";
+const API_URL = "https://pomodoro.poliscuks.id.lv/api";
 
 async function login(username, password) {
   const response = await fetch(`${API_URL}/auth/login`, {
