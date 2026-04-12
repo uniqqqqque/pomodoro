@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../dist/output.css" />
     <title>Pomodoro</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍅</text></svg>"
+    />
   </head>
   <body class="flex min-h-screen flex-col bg-slate-900">
     <div class="mx-auto my-auto flex w-3xl max-w-3xl flex-col gap-4">
@@ -35,9 +39,32 @@
         <span id="mode" class="text-xl font-semibold text-slate-400"
           >Working</span
         >
-        <span id="timer" class="my-10 text-5xl font-semibold text-white"
-          >25:00</span
-        >
+        <div class="relative flex h-100 w-100 items-center justify-center">
+          <svg width="300" height="300" viewBox="0 0 300 300" class="absolute">
+            <circle
+              cx="150"
+              cy="150"
+              r="140"
+              fill="none"
+              stroke="#1e293b"
+              stroke-width="10"
+            />
+            <circle
+              id="progressRing"
+              cx="150"
+              cy="150"
+              r="140"
+              fill="none"
+              stroke="#f97316"
+              stroke-width="10"
+              stroke-dasharray="879.6"
+              stroke-dashoffset="0"
+              stroke-linecap="round"
+              transform="rotate(-90 150 150)"
+            />
+          </svg>
+          <span id="timer" class="text-6xl font-bold text-white">25:00</span>
+        </div>
         <div class="mt-10 flex gap-4">
           <button
             id="startBtn"

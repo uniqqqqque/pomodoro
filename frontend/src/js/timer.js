@@ -7,6 +7,9 @@ let pomodoroCount = 0;
 const workTime = 1500;
 const shortBreak = 300;
 const longBreak = 900;
+const audio = new Audio(
+  "https://assets.mixkit.co/active_storage/sfx/765/765-preview.mp3",
+);
 
 let timeLeft = workTime;
 let isRunning = false;
@@ -28,6 +31,23 @@ function updateDisplay() {
   const timer = document.getElementById("timer");
   timer.textContent = formatTime(timeLeft);
   document.getElementById("mode").textContent = modeNames[mode];
+  const ring = document.getElementById("progressRing");
+  if (mode === "work") {
+    ring.style.stroke = "#f97316"; // оранжевый
+  } else {
+    ring.style.stroke = "#4ade80"; // зелёный
+  }
+  const circumference = 879.6;
+  let totalTime;
+  if (mode === "work") {
+    totalTime = workTime;
+  } else if (mode === "short_break") {
+    totalTime = shortBreak;
+  } else {
+    totalTime = longBreak;
+  }
+  const offset = circumference * (1 - timeLeft / totalTime);
+  ring.style.strokeDashoffset = offset;
 }
 
 async function startTimer() {
@@ -46,8 +66,14 @@ async function startTimer() {
           completed: true,
         });
       }
+      if (mode === "work") {
+        showNotification("Break time!", "Take a great chill!");
+      } else {
+        showNotification("Work Time!", "Cmon, just finish your work!");
+      }
       switchMode();
       updateDisplay();
+      audio.play();
     }
   }, 1000);
 }
@@ -83,10 +109,24 @@ function switchMode() {
   }
 }
 
+function requestNotificationPermission() {
+  if (Notification.permission === "default") {
+    Notification.requestPermission();
+  }
+}
+
+function showNotification(title, body) {
+  if (Notification.permission === "granted") {
+    new Notification(title, { body, icon: "🍅" });
+  }
+}
+
 function logout() {
   localStorage.removeItem("token");
   window.location.href = "login.html";
 }
+
+requestNotificationPermission();
 
 document.getElementById("startBtn").addEventListener("click", startTimer);
 document.getElementById("pauseBtn").addEventListener("click", pauseTimer);
