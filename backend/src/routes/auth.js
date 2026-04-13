@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const pool = require("../database");
 const jwt = require("jsonwebtoken");
 const { body, validationResult } = require("express-validator");
+const authMiddleware = require("../middleware/auth");
 
 router.post(
   "/register",
@@ -80,12 +81,27 @@ router.post("/login", async (req, res) => {
       const token = jwt.sign({ id: user.rows[0].id }, process.env.JWT_SECRET, {
         expiresIn: "7d",
       });
-      return res.status(200).json({ token, message: "Login accepted" });
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 //7days in ms
+      });
+      res.status(200).json({ message: 'Login accepted' });
     }
     return res.status(400).json({ message: "User not found" });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
+});
+
+router.post("/logout", async (req, res) => { 
+res.clearCookie('token');
+res.status(200).json({ message: "Logged out" });
+});
+
+router.get('/check', authMiddleware, (req, res) => {
+  res.status(200).json({message: 'OK', userId: req.user.id });
 });
 
 module.exports = router;

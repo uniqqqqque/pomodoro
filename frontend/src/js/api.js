@@ -3,6 +3,7 @@ const API_URL = "https://pomodoro.poliscuks.id.lv/api";
 async function login(username, password) {
   const response = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
   });
@@ -13,6 +14,7 @@ async function login(username, password) {
 async function register(username, email, password) {
   const response = await fetch(`${API_URL}/auth/register`, {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, email, password }),
   });
@@ -21,12 +23,11 @@ async function register(username, email, password) {
 }
 
 async function apiFetch(endpoint, method = "GET", body = null) {
-  const token = localStorage.getItem("token");
   const options = {
     method: method,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
   };
   if (body !== null) options.body = JSON.stringify(body);

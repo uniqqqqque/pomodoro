@@ -6,8 +6,7 @@ const registerBtn = document.getElementById("registerBtn");
 
 loginBtn.addEventListener("click", async () => {
   const data = await login(username.value, password.value);
-  if (data.token) {
-    localStorage.setItem("token", data.token);
+  if (data.message === "Login accepted") {
     window.location.href = "index.html";
   } else {
     alert(data.message);
@@ -20,8 +19,7 @@ registerBtn.addEventListener("click", async () => {
     email.classList.add("opacity-100", "pointer-events-auto");
   } else {
     const data = await register(username.value, email.value, password.value);
-    if (data.token) {
-      localStorage.setItem("token", data.token);
+    if (data.message === "Register is fine") {
       window.location.href = "index.html";
     } else {
       alert(data.message);

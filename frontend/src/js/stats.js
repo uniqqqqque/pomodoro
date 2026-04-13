@@ -1,4 +1,13 @@
-if (!localStorage.getItem("token")) {
+async function checkAuth() {
+  const data = await apiFetch("/auth/check");
+  if (!data || data.message === "No token provided") {
+    window.location.href = "login.html";
+  }
+}
+checkAuth();
+
+async function logout() {
+  await apiFetch("/auth/logout", "POST");
   window.location.href = "login.html";
 }
 
@@ -72,11 +81,6 @@ async function loadStats() {
       },
     },
   });
-}
-
-function logout() {
-  localStorage.removeItem("token");
-  window.location.href = "login.html";
 }
 
 loadStats();
