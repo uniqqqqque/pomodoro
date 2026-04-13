@@ -13,7 +13,7 @@ async function logout() {
 
 let mode = "work";
 let pomodoroCount = 0;
-const workTime = 150;
+const workTime = 1500;
 const shortBreak = 300;
 const longBreak = 900;
 const audio = new Audio(
