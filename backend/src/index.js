@@ -11,6 +11,24 @@ app.use(cors( {
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+const rateLimit = require('express-rate-limit');
+
+const limiter = rateLimit({
+  windowMs: 15 * 60*1000, //15min
+  max: 100,
+  message: {message: 'Too many requests, please try again later'}
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60*1000, //15min
+  max: 10,
+  message: {message: 'Too many login attempt, please try again later'}
+});
+
+app.use(limiter);
+app.use('/auth/login', authLimiter);
+app.use('/auth/register', authLimiter);
+
 app.use(express.json());
 
 const authRoutes = require("./routes/auth");
