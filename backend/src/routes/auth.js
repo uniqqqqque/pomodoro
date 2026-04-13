@@ -62,7 +62,10 @@ router.post(
       );
       await sendWelcomeEmail(email, username);
       res.status(201).json({ message: "Register is fine" });
-    } catch (err) {}
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+    }
   },
 );
 
@@ -93,6 +96,7 @@ router.post("/login", async (req, res) => {
     }
     return res.status(400).json({ message: "User not found" });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });
