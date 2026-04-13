@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const pool = require("../database");
 const jwt = require("jsonwebtoken");
 const { body, validationResult } = require("express-validator");
+const { sendWelcomeEmail } = require("../email");
 const authMiddleware = require("../middleware/auth");
 
 router.post(
@@ -59,6 +60,7 @@ router.post(
         "INSERT INTO users (username, email, password_hash, created_at) VALUES ($1, $2, $3, NOW())",
         [username, email, passwordHash],
       );
+      await sendWelcomeEmail(email, username);
       res.status(201).json({ message: "Register is fine" });
     } catch (err) {}
   },
@@ -81,13 +83,13 @@ router.post("/login", async (req, res) => {
       const token = jwt.sign({ id: user.rows[0].id }, process.env.JWT_SECRET, {
         expiresIn: "7d",
       });
-      res.cookie('token', token, {
+      res.cookie("token", token, {
         httpOnly: true,
         secure: true,
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000 //7days in ms
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, //7days in ms
       });
-      res.status(200).json({ message: 'Login accepted' });
+      res.status(200).json({ message: "Login accepted" });
     }
     return res.status(400).json({ message: "User not found" });
   } catch (err) {
@@ -95,13 +97,13 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/logout", async (req, res) => { 
-res.clearCookie('token');
-res.status(200).json({ message: "Logged out" });
+router.post("/logout", async (req, res) => {
+  res.clearCookie("token");
+  res.status(200).json({ message: "Logged out" });
 });
 
-router.get('/check', authMiddleware, (req, res) => {
-  res.status(200).json({message: 'OK', userId: req.user.id });
+router.get("/check", authMiddleware, (req, res) => {
+  res.status(200).json({ message: "OK", userId: req.user.id });
 });
 
 module.exports = router;

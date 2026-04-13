@@ -1,3 +1,10 @@
 {
-  "plugins": ["prettier-plugin-tailwindcss"]
+  "overrides": [
+    {
+      "files": ["**/*.html", "**/*.css"],
+      "options": {
+        "plugins": ["./frontend/node_modules/prettier-plugin-tailwindcss"]
+      }
+    }
+  ]
 }
