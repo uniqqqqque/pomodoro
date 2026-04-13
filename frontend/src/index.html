@@ -13,16 +13,20 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
+    <script>
+      if (localStorage.theme === "light")
+        document.documentElement.classList.add("light");
+    </script>
   </head>
   <body
     class="flex min-h-screen flex-col items-center justify-center bg-gray-950"
   >
     <div class="flex w-full max-w-xl flex-col gap-5 px-4">
       <!-- Header -->
-      <div class="flex items-center justify-between px-1">
+      <div class="animate flex items-center justify-between px-1">
         <span
           class="text-base font-bold tracking-widest text-orange-400 uppercase"
-          >🍅 Pomodoro</span
+          >uniqque/pomodoro</span
         >
         <div class="flex gap-2">
           <a href="stats.html">
@@ -47,22 +51,25 @@
         class="flex flex-col items-center gap-7 rounded-3xl bg-gray-900 p-8 shadow-2xl ring-1 ring-white/5"
       >
         <!-- Mode label -->
-        <div class="flex items-center gap-2">
+        <div class="animate flex items-center gap-2">
           <i
             id="modeIcon"
-            class="fa-solid fa-brain text-base text-slate-500"
+            class="fa-solid fa-brain text-base text-orange-400"
           ></i>
           <span
             id="modeLabel"
-            class="text-sm font-semibold tracking-widest text-slate-500 uppercase"
+            class="text-2xl font-semibold tracking-widest text-orange-400 uppercase"
             >Focus</span
           >
         </div>
 
         <!-- Timer ring -->
-        <div class="relative flex h-75 w-75 items-center justify-center">
+        <div
+          class="animate relative flex h-75 w-75 items-center justify-center"
+        >
           <svg width="300" height="300" viewBox="0 0 300 300" class="absolute">
             <circle
+              id="trackRing"
               cx="150"
               cy="150"
               r="140"
@@ -90,7 +97,7 @@
         </div>
 
         <!-- Pomodoro cycle dots -->
-        <div class="flex gap-2">
+        <div id="dotsContainer" class="animate flex gap-2">
           <div class="h-1.5 w-7 rounded-full bg-slate-700" id="dot0"></div>
           <div class="h-1.5 w-7 rounded-full bg-slate-700" id="dot1"></div>
           <div class="h-1.5 w-7 rounded-full bg-slate-700" id="dot2"></div>
@@ -98,7 +105,7 @@
         </div>
 
         <!-- Controls -->
-        <div class="mt-4 flex items-center gap-3">
+        <div class="animate mt-4 flex items-center gap-3">
           <button
             id="resetBtn"
             class="h-12 w-12 cursor-pointer rounded-2xl bg-slate-800 text-slate-400 transition hover:bg-slate-700 hover:text-white active:scale-95"
@@ -112,15 +119,227 @@
             <i class="fa-solid fa-play"></i>
           </button>
           <button
-            id="pauseBtn"
+            id="settingsBtn"
             class="h-12 w-12 cursor-pointer rounded-2xl bg-slate-800 text-slate-400 transition hover:bg-slate-700 hover:text-white active:scale-95"
           >
-            <i class="fa-solid fa-pause"></i>
+            <i class="fa-solid fa-gear"></i>
           </button>
         </div>
       </div>
     </div>
+    <!-- Settings modal -->
+    <div
+      id="settingsModal"
+      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 px-4 backdrop-blur-sm"
+    >
+      <div
+        class="modal-animate flex w-full max-w-sm flex-col gap-5 rounded-3xl bg-gray-900 p-6 shadow-2xl ring-1 ring-white/5"
+      >
+        <!-- Header -->
+        <div class="flex items-center justify-between">
+          <span
+            class="text-sm font-bold tracking-widest text-slate-400 uppercase"
+            >Settings</span
+          >
+          <button
+            id="settingsCloseBtn"
+            class="h-8 w-8 cursor-pointer rounded-xl bg-slate-800 text-slate-400 transition hover:bg-slate-700 hover:text-white active:scale-95"
+          >
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Toggles -->
+        <div class="flex flex-col gap-1">
+          <div
+            class="flex items-center justify-between rounded-2xl bg-slate-800/50 px-4 py-3"
+          >
+            <span class="text-base text-slate-300">Enable dark mode</span>
+            <button id="toggleDarkMode" class="settings-toggle active">
+              <span></span>
+            </button>
+          </div>
+          <div
+            class="flex items-center justify-between rounded-2xl bg-slate-800/50 px-4 py-3"
+          >
+            <span class="text-base text-slate-300">Auto resume timer</span>
+            <button id="toggleAutoResume" class="settings-toggle">
+              <span></span>
+            </button>
+          </div>
+          <div
+            class="flex items-center justify-between rounded-2xl bg-slate-800/50 px-4 py-3"
+          >
+            <span class="text-base text-slate-300">Sound</span>
+            <button id="toggleSound" class="settings-toggle active">
+              <span></span>
+            </button>
+          </div>
+          <div
+            class="flex items-center justify-between rounded-2xl bg-slate-800/50 px-4 py-3"
+          >
+            <span class="text-base text-slate-300">Notifications</span>
+            <button id="toggleNotifications" class="settings-toggle active">
+              <span></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Number inputs -->
+        <div class="flex flex-col gap-1">
+          <div
+            class="flex items-center justify-between rounded-2xl bg-slate-800/50 px-4 py-3"
+          >
+            <span class="text-base text-slate-300">Pomodoro length</span>
+            <div class="flex items-center gap-2">
+              <input
+                id="settingPomodoro"
+                type="number"
+                value="25"
+                min="1"
+                max="99"
+                class="w-14 rounded-xl bg-slate-800 py-1 text-center text-white ring-1 ring-white/10 transition outline-none focus:ring-orange-500/50"
+              />
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between rounded-2xl bg-slate-800/50 px-4 py-3"
+          >
+            <span class="text-base text-slate-300">Short break length</span>
+            <div class="flex items-center gap-2">
+              <input
+                id="settingShortBreak"
+                type="number"
+                value="5"
+                min="1"
+                max="99"
+                class="w-14 rounded-xl bg-slate-800 py-1 text-center text-white ring-1 ring-white/10 transition outline-none focus:ring-orange-500/50"
+              />
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between rounded-2xl bg-slate-800/50 px-4 py-3"
+          >
+            <span class="text-base text-slate-300">Long break length</span>
+            <div class="flex items-center gap-2">
+              <input
+                id="settingLongBreak"
+                type="number"
+                value="15"
+                min="1"
+                max="99"
+                class="w-14 rounded-xl bg-slate-800 py-1 text-center text-white ring-1 ring-white/10 transition outline-none focus:ring-orange-500/50"
+              />
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between rounded-2xl bg-slate-800/50 px-4 py-3"
+          >
+            <span class="text-base text-slate-300"
+              >Pomodoros until long break</span
+            >
+            <div class="flex items-center gap-2">
+              <input
+                id="settingPomodorosUntil"
+                type="number"
+                value="4"
+                min="1"
+                max="99"
+                class="w-14 rounded-xl bg-slate-800 py-1 text-center text-white ring-1 ring-white/10 transition outline-none focus:ring-orange-500/50"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      @keyframes modal-in {
+        from {
+          opacity: 0;
+          transform: scale(0.95) translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+      .modal-animate {
+        animation: modal-in 0.2s ease-out;
+      }
+      .settings-toggle {
+        position: relative;
+        width: 2.5rem;
+        height: 1.375rem;
+        border-radius: 9999px;
+        background: #334155;
+        transition: background 0.2s;
+        flex-shrink: 0;
+        cursor: pointer;
+      }
+      .settings-toggle.active {
+        background: #f97316;
+      }
+      .settings-toggle span {
+        position: absolute;
+        top: 0.1875rem;
+        left: 0.1875rem;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 9999px;
+        background: white;
+        transition: transform 0.2s;
+      }
+      .settings-toggle.active span {
+        transform: translateX(1.125rem);
+      }
+    </style>
+
     <script src="./js/api.js"></script>
     <script src="./js/timer.js"></script>
+    <script>
+      const modal = document.getElementById("settingsModal");
+      const modalInner = modal.querySelector("div");
+      document.getElementById("settingsBtn").addEventListener("click", () => {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        modalInner.classList.remove("modal-animate");
+        void modalInner.offsetWidth;
+        modalInner.classList.add("modal-animate");
+      });
+      document
+        .getElementById("settingsCloseBtn")
+        .addEventListener("click", () => {
+          modal.classList.add("hidden");
+          modal.classList.remove("flex");
+        });
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          modal.classList.add("hidden");
+          modal.classList.remove("flex");
+        }
+      });
+      document.querySelectorAll(".settings-toggle").forEach((btn) => {
+        btn.addEventListener("click", () => btn.classList.toggle("active"));
+      });
+
+      const darkToggle = document.getElementById("toggleDarkMode");
+
+      // Sync toggle state with current theme on load
+      if (localStorage.theme === "light") {
+        darkToggle.classList.remove("active");
+      }
+
+      darkToggle.addEventListener("click", () => {
+        const isLight = !darkToggle.classList.contains("active");
+        if (isLight) {
+          document.documentElement.classList.add("light");
+          localStorage.theme = "light";
+        } else {
+          document.documentElement.classList.remove("light");
+          localStorage.theme = "dark";
+        }
+      });
+    </script>
   </body>
 </html>

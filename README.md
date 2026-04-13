@@ -1,21 +1,23 @@
-# 🍅 Pomodoro Timer
+# uniqque/pomodoro
 
-A full-stack Pomodoro productivity app with statistics and user authentication.
+A full-stack Pomodoro timer with user authentication and session statistics.
 
 ## Features
 
-- Pomodoro timer with work/short break/long break cycles
-- User registration and login with JWT authentication
+- Work / short break / long break cycles with configurable durations
+- Customizable settings: pomodoro length, break lengths, pomodoros until long break
+- Auto resume, sound and browser notification toggles
 - Session tracking saved to database
-- Statistics dashboard with charts and activity heatmap
-- Responsive dark UI built with Tailwind CSS
+- Statistics dashboard with hourly activity chart and yearly heatmap
+- Dark and light theme, persisted across sessions
+- User registration and login with JWT authentication
 
 ## Tech Stack
 
 **Backend:** Node.js, Express, PostgreSQL, JWT, bcrypt  
-**Frontend:** HTML, CSS, JavaScript, Tailwind CSS v4, Chart.js, Cal-Heatmap  
-**Infrastructure:** Ubuntu Server, Nginx, PM2, Let's Encrypt SSL
+**Frontend:** HTML, JavaScript, Tailwind CSS v4, Chart.js, Cal-Heatmap  
+**Infrastructure:** Ubuntu Server, Nginx, PM2, Let's Encrypt SSL, GitHub webhook
 
-## Live Demo
+## Live
 
 [pomodoro.poliscuks.id.lv](https://pomodoro.poliscuks.id.lv/login.html)

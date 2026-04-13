@@ -1,5 +1,22 @@
 const API_URL = "https://pomodoro.poliscuks.id.lv/api";
 
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".animate").forEach((el, i) => {
+    el.style.animationDelay = `${i * 120}ms`;
+    el.classList.add("stagger-in");
+  });
+});
+
+function navigateTo(url) {
+  document.body.style.transition =
+    "opacity 0.15s ease-out, transform 0.15s ease-out";
+  document.body.style.opacity = "0";
+  document.body.style.transform = "translateY(-6px)";
+  setTimeout(() => {
+    window.location.href = url;
+  }, 160);
+}
+
 async function login(username, password) {
   const response = await fetch(`${API_URL}/auth/login`, {
     method: "POST",

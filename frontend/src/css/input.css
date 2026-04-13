@@ -8,3 +8,46 @@
   font-family: "JetBrains Mono", monospace;
   font-weight: 700;
 }
+
+/* ── Light mode overrides ────────────────────────────────── */
+html.light body                          { background-color: #f1f5f9 !important; }
+html.light .bg-gray-950                  { background-color: #f1f5f9 !important; }
+html.light .bg-gray-900                  { background-color: #ffffff !important; }
+html.light .bg-slate-800                 { background-color: #e2e8f0 !important; }
+html.light .bg-slate-800\/50            { background-color: rgba(226,232,240,0.7) !important; }
+html.light .bg-slate-700                 { background-color: #cbd5e1 !important; }
+html.light .hover\:bg-slate-700:hover    { background-color: #cbd5e1 !important; }
+html.light .text-white                   { color: #1e293b !important; }
+html.light .text-slate-300               { color: #475569 !important; }
+html.light .text-slate-400               { color: #64748b !important; }
+html.light .text-slate-500               { color: #64748b !important; }
+html.light .text-slate-600               { color: #94a3b8 !important; }
+html.light .hover\:text-white:hover      { color: #1e293b !important; }
+html.light .ring-white\/5               { --tw-ring-color: rgba(0,0,0,0.08) !important; }
+html.light .ring-white\/10              { --tw-ring-color: rgba(0,0,0,0.12) !important; }
+html.light .shadow-2xl                   { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.08) !important; }
+html.light #trackRing                    { stroke: #e2e8f0; }
+/* ─────────────────────────────────────────────────────────── */
+
+@keyframes stagger-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate {
+  opacity: 0;
+}
+
+.stagger-in {
+  animation: stagger-in 0.35s ease-out both;
+}
+
+@keyframes field-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.field-in {
+  animation: field-in 0.3s ease-out both;
+}
+

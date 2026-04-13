@@ -17,16 +17,20 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
+    <script>
+      if (localStorage.theme === "light")
+        document.documentElement.classList.add("light");
+    </script>
   </head>
   <body
     class="flex min-h-screen flex-col items-center justify-center bg-gray-950 py-10"
   >
     <div class="flex w-full max-w-xl flex-col gap-5 px-4">
       <!-- Header -->
-      <div class="flex items-center justify-between px-1">
+      <div class="animate flex items-center justify-between px-1">
         <span
           class="text-base font-bold tracking-widest text-orange-400 uppercase"
-          >🍅 Pomodoro</span
+          >uniqque/pomodoro</span
         >
         <div class="flex gap-2">
           <a href="index.html">
@@ -48,8 +52,9 @@
       <!-- Stats cards -->
       <div class="grid grid-cols-3 gap-3">
         <div
-          class="flex flex-col items-center gap-2 rounded-2xl bg-gray-900 py-6 ring-1 ring-white/5"
+          class="animate flex flex-col items-center gap-2 rounded-2xl bg-gray-900 py-6 ring-1 ring-white/5"
         >
+          <i class="fa-solid fa-clock text-lg text-slate-600"></i>
           <span
             class="text-sm font-semibold tracking-widest text-slate-500 uppercase"
             >Total</span
@@ -57,8 +62,9 @@
           <span id="total" class="text-4xl font-bold text-white">--:--</span>
         </div>
         <div
-          class="flex flex-col items-center gap-2 rounded-2xl bg-gray-900 py-6 ring-1 ring-white/5"
+          class="animate flex flex-col items-center gap-2 rounded-2xl bg-gray-900 py-6 ring-1 ring-white/5"
         >
+          <i class="fa-solid fa-calendar-day text-lg text-slate-600"></i>
           <span
             class="text-sm font-semibold tracking-widest text-slate-500 uppercase"
             >Today</span
@@ -66,8 +72,9 @@
           <span id="today" class="text-4xl font-bold text-white">--:--</span>
         </div>
         <div
-          class="flex flex-col items-center gap-2 rounded-2xl bg-gray-900 py-6 ring-1 ring-white/5"
+          class="animate flex flex-col items-center gap-2 rounded-2xl bg-gray-900 py-6 ring-1 ring-white/5"
         >
+          <i class="fa-solid fa-calendar-week text-lg text-slate-600"></i>
           <span
             class="text-sm font-semibold tracking-widest text-slate-500 uppercase"
             >Week</span
@@ -78,7 +85,7 @@
 
       <!-- Activity chart -->
       <div
-        class="flex flex-col gap-4 rounded-3xl bg-gray-900 p-6 shadow-2xl ring-1 ring-white/5"
+        class="animate flex flex-col gap-4 rounded-3xl bg-gray-900 p-6 shadow-2xl ring-1 ring-white/5"
       >
         <span
           class="text-sm font-semibold tracking-widest text-slate-500 uppercase"
@@ -89,7 +96,7 @@
 
       <!-- Heatmap -->
       <div
-        class="flex flex-col gap-4 overflow-x-auto rounded-3xl bg-gray-900 p-6 shadow-2xl ring-1 ring-white/5"
+        class="animate flex flex-col gap-4 overflow-x-auto rounded-3xl bg-gray-900 p-6 shadow-2xl ring-1 ring-white/5"
       >
         <span
           class="text-sm font-semibold tracking-widest text-slate-500 uppercase"

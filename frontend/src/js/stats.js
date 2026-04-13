@@ -1,14 +1,14 @@
 async function checkAuth() {
   const data = await apiFetch("/auth/check");
   if (!data || data.message === "No token provided") {
-    window.location.href = "login.html";
+    navigateTo("login.html");
   }
 }
 checkAuth();
 
 async function logout() {
   await apiFetch("/auth/logout", "POST");
-  window.location.href = "login.html";
+  navigateTo("login.html");
 }
 
 function formatMinutes(minutes) {
@@ -64,7 +64,7 @@ async function loadStats() {
     date: {
       start: new Date(
         new Date().getFullYear() - 1,
-        new Date().getMonth() + 2,
+        new Date().getMonth() + 1,
         1,
       ),
     },

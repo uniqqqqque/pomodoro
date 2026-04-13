@@ -1,21 +1,22 @@
 async function checkAuth() {
   const data = await apiFetch("/auth/check");
   if (!data || data.message === "No token provided") {
-    window.location.href = "login.html";
+    navigateTo("login.html");
   }
 }
 checkAuth();
 
 async function logout() {
   await apiFetch("/auth/logout", "POST");
-  window.location.href = "login.html";
+  navigateTo("login.html");
 }
 
 let mode = "work";
 let pomodoroCount = 0;
-const workTime = 1500;
-const shortBreak = 300;
-const longBreak = 900;
+let workTime = 1500;
+let shortBreak = 300;
+let longBreak = 900;
+let pomodorosUntilLongBreak = 4;
 const audio = new Audio(
   "https://assets.mixkit.co/active_storage/sfx/765/765-preview.mp3",
 );
@@ -39,11 +40,22 @@ const modeLabels = {
   long_break: "Long Break",
 };
 
-modeIcon.className = `fa-solid ${icons[mode]} text-base text-slate-500`;
+modeIcon.className = `fa-solid ${icons[mode]} text-base text-orange-400`;
+
+function renderDots() {
+  const container = document.getElementById("dotsContainer");
+  container.innerHTML = "";
+  for (let i = 0; i < pomodorosUntilLongBreak; i++) {
+    const dot = document.createElement("div");
+    dot.id = `dot${i}`;
+    dot.className = "h-1.5 w-7 rounded-full bg-slate-700";
+    container.appendChild(dot);
+  }
+}
 
 function updateDots() {
-  const filled = pomodoroCount % 4;
-  for (let i = 0; i < 4; i++) {
+  const filled = pomodoroCount % pomodorosUntilLongBreak;
+  for (let i = 0; i < pomodorosUntilLongBreak; i++) {
     const dot = document.getElementById(`dot${i}`);
     if (dot) {
       dot.className = `h-1.5 w-7 rounded-full transition-all duration-500 ${i < filled ? "bg-orange-400" : "bg-slate-700"}`;
@@ -60,15 +72,17 @@ function formatTime(seconds) {
 function updateDisplay() {
   const timer = document.getElementById("timer");
   timer.textContent = formatTime(timeLeft);
+  const color = mode === "work" ? "text-orange-400" : "text-green-400";
   document.getElementById("modeIcon").className =
-    `fa-solid ${icons[mode]} text-base text-slate-500`;
+    `fa-solid ${icons[mode]} text-base ${color}`;
+  modeLabel.className = `text-2xl font-semibold tracking-widest uppercase ${color}`;
   modeLabel.textContent = modeLabels[mode];
   updateDots();
   const ring = document.getElementById("progressRing");
   if (mode === "work") {
-    ring.style.stroke = "#f97316"; // оранжевый
+    ring.style.stroke = "#f97316";
   } else {
-    ring.style.stroke = "#4ade80"; // зелёный
+    ring.style.stroke = "#4ade80";
   }
   const circumference = 879.6;
   let totalTime;
@@ -92,6 +106,8 @@ async function startTimer() {
     if (timeLeft <= 0) {
       clearInterval(intervalId);
       isRunning = false;
+      document.getElementById("startBtn").innerHTML =
+        '<i class="fa-solid fa-play"></i>';
       if (mode === "work") {
         await apiFetch("/sessions", "POST", {
           duration: Math.round(workTime / 60),
@@ -106,7 +122,14 @@ async function startTimer() {
       }
       switchMode();
       updateDisplay();
-      audio.play();
+      if (isSoundEnabled()) {
+        audio.currentTime = 0;
+        audio.play();
+      }
+      if (isAutoResumeEnabled()) {
+        startTimer();
+        document.getElementById("startBtn").innerHTML = '<i class="fa-solid fa-pause"></i>';
+      }
     }
   }, 1000);
 }
@@ -130,7 +153,7 @@ function resetTimer() {
 function switchMode() {
   if (mode === "work") {
     pomodoroCount++;
-    if (pomodoroCount % 4 === 0) {
+    if (pomodoroCount % pomodorosUntilLongBreak === 0) {
       mode = "long_break";
       timeLeft = longBreak;
     } else {
@@ -149,16 +172,112 @@ function requestNotificationPermission() {
   }
 }
 
+function isSoundEnabled() {
+  return document.getElementById("toggleSound").classList.contains("active");
+}
+
+function isAutoResumeEnabled() {
+  return document
+    .getElementById("toggleAutoResume")
+    .classList.contains("active");
+}
+
+function isNotificationsEnabled() {
+  return document
+    .getElementById("toggleNotifications")
+    .classList.contains("active");
+}
+
 function showNotification(title, body) {
-  if (Notification.permission === "granted") {
+  if (isNotificationsEnabled() && Notification.permission === "granted") {
     new Notification(title, { body, icon: "🍅" });
   }
 }
 
 requestNotificationPermission();
 
-document.getElementById("startBtn").addEventListener("click", startTimer);
-document.getElementById("pauseBtn").addEventListener("click", pauseTimer);
-document.getElementById("resetBtn").addEventListener("click", resetTimer);
-// document.getElementById("statsBtn").addEventListener("click", stats);
+document.getElementById("toggleNotifications").addEventListener("click", () => {
+  const btn = document.getElementById("toggleNotifications");
+  const isNowActive = btn.classList.contains("active");
+  if (isNowActive && Notification.permission === "default") {
+    Notification.requestPermission().then((result) => {
+      if (result === "denied") {
+        btn.classList.remove("active");
+      }
+    });
+  }
+  if (isNowActive && Notification.permission === "denied") {
+    btn.classList.remove("active");
+  }
+});
+
+const startBtn = document.getElementById("startBtn");
+
+startBtn.addEventListener("click", () => {
+  if (isRunning) {
+    pauseTimer();
+    startBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+  } else {
+    startTimer();
+    startBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+  }
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  resetTimer();
+  startBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+});
+
 document.getElementById("logoutBtn").addEventListener("click", logout);
+
+document.getElementById("settingPomodoro").addEventListener("change", (e) => {
+  const val = Math.max(1, parseInt(e.target.value) || 1);
+  e.target.value = val;
+  workTime = val * 60;
+  if (mode === "work" && !isRunning) { timeLeft = workTime; updateDisplay(); }
+  saveSettings();
+});
+
+document.getElementById("settingShortBreak").addEventListener("change", (e) => {
+  const val = Math.max(1, parseInt(e.target.value) || 1);
+  e.target.value = val;
+  shortBreak = val * 60;
+  if (mode === "short_break" && !isRunning) { timeLeft = shortBreak; updateDisplay(); }
+  saveSettings();
+});
+
+document.getElementById("settingLongBreak").addEventListener("change", (e) => {
+  const val = Math.max(1, parseInt(e.target.value) || 1);
+  e.target.value = val;
+  longBreak = val * 60;
+  if (mode === "long_break" && !isRunning) { timeLeft = longBreak; updateDisplay(); }
+  saveSettings();
+});
+
+document.getElementById("settingPomodorosUntil").addEventListener("change", (e) => {
+  const val = Math.max(1, parseInt(e.target.value) || 1);
+  e.target.value = val;
+  pomodorosUntilLongBreak = val;
+  renderDots();
+  updateDots();
+  saveSettings();
+});
+
+function saveSettings() {
+  localStorage.setItem("pomodoroSettings", JSON.stringify({
+    workTime, shortBreak, longBreak, pomodorosUntilLongBreak,
+  }));
+}
+
+function loadSettings() {
+  const s = JSON.parse(localStorage.getItem("pomodoroSettings") || "{}");
+  if (s.workTime) { workTime = s.workTime; document.getElementById("settingPomodoro").value = workTime / 60; }
+  if (s.shortBreak) { shortBreak = s.shortBreak; document.getElementById("settingShortBreak").value = shortBreak / 60; }
+  if (s.longBreak) { longBreak = s.longBreak; document.getElementById("settingLongBreak").value = longBreak / 60; }
+  if (s.pomodorosUntilLongBreak) { pomodorosUntilLongBreak = s.pomodorosUntilLongBreak; document.getElementById("settingPomodorosUntil").value = pomodorosUntilLongBreak; }
+  timeLeft = workTime;
+  renderDots();
+  updateDisplay();
+}
+
+loadSettings();
