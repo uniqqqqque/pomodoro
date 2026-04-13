@@ -9,37 +9,58 @@
       rel="icon"
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍅</text></svg>"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
   </head>
-  <body class="flex min-h-screen flex-col bg-slate-900">
-    <div class="mx-auto my-auto flex w-3xl max-w-3xl flex-col gap-4">
-      <div
-        class="flex items-center justify-between rounded-2xl bg-slate-800 p-8"
-      >
-        <a href="stats.html">
+  <body
+    class="flex min-h-screen flex-col items-center justify-center bg-gray-950"
+  >
+    <div class="flex w-full max-w-xl flex-col gap-5 px-4">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-1">
+        <span
+          class="text-base font-bold tracking-widest text-orange-400 uppercase"
+          >🍅 Pomodoro</span
+        >
+        <div class="flex gap-2">
+          <a href="stats.html">
+            <button
+              id="statsBtn"
+              class="h-9 w-9 cursor-pointer rounded-xl bg-slate-800 text-slate-400 transition hover:bg-slate-700 hover:text-white"
+            >
+              <i class="fa-solid fa-chart-line text-sm"></i>
+            </button>
+          </a>
           <button
-            id="statsBtn"
-            class="mx-4 w-50 cursor-pointer rounded-lg bg-orange-400 p-3 text-xl font-semibold text-white transition hover:bg-orange-500"
+            id="logoutBtn"
+            class="h-9 w-9 cursor-pointer rounded-xl bg-slate-800 text-slate-400 transition hover:bg-slate-700 hover:text-white"
           >
-            Stats
+            <i class="fa-solid fa-right-from-bracket text-sm"></i>
           </button>
-        </a>
-        <h1 class="mx-4 mb-6 text-center text-2xl font-bold text-white">
-          🍅⏰
-        </h1>
-        <button
-          id="logoutBtn"
-          class="mx-4 w-50 cursor-pointer rounded-lg bg-red-400 p-3 text-xl font-semibold text-white transition hover:bg-red-500"
-        >
-          Logout
-        </button>
+        </div>
       </div>
+
+      <!-- Main card -->
       <div
-        class="flex flex-col items-center justify-center gap-6 rounded-2xl bg-slate-800 p-8"
+        class="flex flex-col items-center gap-7 rounded-3xl bg-gray-900 p-8 shadow-2xl ring-1 ring-white/5"
       >
-        <span id="mode" class="text-xl font-semibold text-slate-400"
-          >Working</span
-        >
-        <div class="relative flex h-100 w-100 items-center justify-center">
+        <!-- Mode label -->
+        <div class="flex items-center gap-2">
+          <i
+            id="modeIcon"
+            class="fa-solid fa-brain text-base text-slate-500"
+          ></i>
+          <span
+            id="modeLabel"
+            class="text-sm font-semibold tracking-widest text-slate-500 uppercase"
+            >Focus</span
+          >
+        </div>
+
+        <!-- Timer ring -->
+        <div class="relative flex h-75 w-75 items-center justify-center">
           <svg width="300" height="300" viewBox="0 0 300 300" class="absolute">
             <circle
               cx="150"
@@ -56,33 +77,45 @@
               r="140"
               fill="none"
               stroke="#f97316"
-              stroke-width="10"
+              stroke-width="12"
               stroke-dasharray="879.6"
               stroke-dashoffset="0"
               stroke-linecap="round"
               transform="rotate(-90 150 150)"
             />
           </svg>
-          <span id="timer" class="text-6xl font-bold text-white">25:00</span>
+          <span id="timer" class="text-7xl font-bold tracking-tight text-white"
+            >25:00</span
+          >
         </div>
-        <div class="mt-10 flex gap-4">
+
+        <!-- Pomodoro cycle dots -->
+        <div class="flex gap-2">
+          <div class="h-1.5 w-7 rounded-full bg-slate-700" id="dot0"></div>
+          <div class="h-1.5 w-7 rounded-full bg-slate-700" id="dot1"></div>
+          <div class="h-1.5 w-7 rounded-full bg-slate-700" id="dot2"></div>
+          <div class="h-1.5 w-7 rounded-full bg-slate-700" id="dot3"></div>
+        </div>
+
+        <!-- Controls -->
+        <div class="mt-4 flex items-center gap-3">
+          <button
+            id="resetBtn"
+            class="h-12 w-12 cursor-pointer rounded-2xl bg-slate-800 text-slate-400 transition hover:bg-slate-700 hover:text-white active:scale-95"
+          >
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
           <button
             id="startBtn"
-            class="mx-4 w-50 cursor-pointer rounded-lg bg-green-400 p-3 text-xl font-semibold text-white transition hover:bg-green-500"
+            class="h-14 w-36 cursor-pointer rounded-2xl bg-orange-500 text-xl font-bold text-white shadow-lg shadow-orange-500/25 transition hover:bg-orange-400 active:scale-95"
           >
-            Start
+            <i class="fa-solid fa-play"></i>
           </button>
           <button
             id="pauseBtn"
-            class="mx-4 w-50 cursor-pointer rounded-lg bg-gray-400 p-3 text-xl font-semibold text-white transition hover:bg-gray-500"
+            class="h-12 w-12 cursor-pointer rounded-2xl bg-slate-800 text-slate-400 transition hover:bg-slate-700 hover:text-white active:scale-95"
           >
-            Pause
-          </button>
-          <button
-            id="resetBtn"
-            class="mx-4 w-50 cursor-pointer rounded-lg bg-blue-400 p-3 text-xl font-semibold text-white transition hover:bg-blue-500"
-          >
-            Reset
+            <i class="fa-solid fa-pause"></i>
           </button>
         </div>
       </div>

@@ -13,7 +13,7 @@ async function logout() {
 
 let mode = "work";
 let pomodoroCount = 0;
-const workTime = 1500;
+const workTime = 150;
 const shortBreak = 300;
 const longBreak = 900;
 const audio = new Audio(
@@ -24,11 +24,32 @@ let timeLeft = workTime;
 let isRunning = false;
 let intervalId = null;
 
-const modeNames = {
-  work: "Working",
+const icons = {
+  work: "fa-brain",
+  short_break: "fa-mug-hot",
+  long_break: "fa-couch",
+};
+
+const modeIcon = document.getElementById("modeIcon");
+const modeLabel = document.getElementById("modeLabel");
+
+const modeLabels = {
+  work: "Focus",
   short_break: "Short Break",
   long_break: "Long Break",
 };
+
+modeIcon.className = `fa-solid ${icons[mode]} text-base text-slate-500`;
+
+function updateDots() {
+  const filled = pomodoroCount % 4;
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById(`dot${i}`);
+    if (dot) {
+      dot.className = `h-1.5 w-7 rounded-full transition-all duration-500 ${i < filled ? "bg-orange-400" : "bg-slate-700"}`;
+    }
+  }
+}
 
 function formatTime(seconds) {
   const min = Math.floor(seconds / 60);
@@ -39,7 +60,10 @@ function formatTime(seconds) {
 function updateDisplay() {
   const timer = document.getElementById("timer");
   timer.textContent = formatTime(timeLeft);
-  document.getElementById("mode").textContent = modeNames[mode];
+  document.getElementById("modeIcon").className =
+    `fa-solid ${icons[mode]} text-base text-slate-500`;
+  modeLabel.textContent = modeLabels[mode];
+  updateDots();
   const ring = document.getElementById("progressRing");
   if (mode === "work") {
     ring.style.stroke = "#f97316"; // оранжевый
@@ -100,6 +124,7 @@ function resetTimer() {
   pomodoroCount = 0;
   mode = "work";
   updateDisplay();
+  updateDots();
 }
 
 function switchMode() {

@@ -8,77 +8,94 @@
       rel="stylesheet"
       href="https://unpkg.com/cal-heatmap/dist/cal-heatmap.css"
     />
-    <title>Pomodoro</title>
+    <title>Stats - Pomodoro</title>
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍅</text></svg>"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
   </head>
-  <body class="flex min-h-screen flex-col bg-slate-900">
-    <div class="mx-auto my-10 flex w-3xl max-w-3xl flex-col gap-4">
-      <div
-        class="flex items-center justify-between rounded-2xl bg-slate-800 p-8"
-      >
-        <a href="index.html">
+  <body
+    class="flex min-h-screen flex-col items-center justify-center bg-gray-950 py-10"
+  >
+    <div class="flex w-full max-w-xl flex-col gap-5 px-4">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-1">
+        <span
+          class="text-base font-bold tracking-widest text-orange-400 uppercase"
+          >🍅 Pomodoro</span
+        >
+        <div class="flex gap-2">
+          <a href="index.html">
+            <button
+              class="h-9 w-9 cursor-pointer rounded-xl bg-slate-800 text-slate-400 transition hover:bg-slate-700 hover:text-white"
+            >
+              <i class="fa-solid fa-clock text-sm"></i>
+            </button>
+          </a>
           <button
-            id="statsBtn"
-            class="mx-4 w-50 cursor-pointer rounded-lg bg-orange-400 p-3 text-xl font-semibold text-white transition hover:bg-orange-500"
+            id="logoutBtn"
+            class="h-9 w-9 cursor-pointer rounded-xl bg-slate-800 text-slate-400 transition hover:bg-slate-700 hover:text-white"
           >
-            Timer
+            <i class="fa-solid fa-right-from-bracket text-sm"></i>
           </button>
-        </a>
-        <h1 class="mx-4 mb-6 text-center text-2xl font-bold text-white">
-          🍅⏰
-        </h1>
-        <button
-          id="logoutBtn"
-          class="mx-4 w-50 cursor-pointer rounded-lg bg-red-400 p-3 text-xl font-semibold text-white transition hover:bg-red-500"
-        >
-          Logout
-        </button>
+        </div>
       </div>
-      <div
-        class="flex flex-row items-center justify-center gap-6 rounded-2xl bg-slate-800 p-8"
-      >
+
+      <!-- Stats cards -->
+      <div class="grid grid-cols-3 gap-3">
         <div
-          class="flex flex-col items-center justify-center gap-6 rounded-2xl bg-slate-800 p-8"
+          class="flex flex-col items-center gap-2 rounded-2xl bg-gray-900 py-6 ring-1 ring-white/5"
         >
-          <span class="text-xl font-semibold text-slate-400">Total</span>
           <span
-            id="total"
-            class="my-10 text-5xl font-semibold text-white"
-          ></span>
+            class="text-sm font-semibold tracking-widest text-slate-500 uppercase"
+            >Total</span
+          >
+          <span id="total" class="text-4xl font-bold text-white">--:--</span>
         </div>
         <div
-          class="flex flex-col items-center justify-center gap-6 rounded-2xl bg-slate-800 p-8"
+          class="flex flex-col items-center gap-2 rounded-2xl bg-gray-900 py-6 ring-1 ring-white/5"
         >
-          <span class="text-xl font-semibold text-slate-400">Today</span>
-          <span id="today" class="my-10 text-5xl font-semibold text-white"
-            >0</span
+          <span
+            class="text-sm font-semibold tracking-widest text-slate-500 uppercase"
+            >Today</span
           >
+          <span id="today" class="text-4xl font-bold text-white">--:--</span>
         </div>
         <div
-          class="flex flex-col items-center justify-center gap-6 rounded-2xl bg-slate-800 p-8"
+          class="flex flex-col items-center gap-2 rounded-2xl bg-gray-900 py-6 ring-1 ring-white/5"
         >
-          <span class="text-xl font-semibold text-slate-400">Week</span>
-          <span id="week" class="my-10 text-5xl font-semibold text-white"
-            >0</span
+          <span
+            class="text-sm font-semibold tracking-widest text-slate-500 uppercase"
+            >Week</span
           >
+          <span id="week" class="text-4xl font-bold text-white">--:--</span>
         </div>
       </div>
+
+      <!-- Activity chart -->
       <div
-        class="flex flex-col items-center justify-center gap-6 rounded-2xl bg-slate-800 p-8"
+        class="flex flex-col gap-4 rounded-3xl bg-gray-900 p-6 shadow-2xl ring-1 ring-white/5"
       >
-        <span class="text-xl font-semibold text-slate-400">Activity</span>
-        <canvas id="activity" class="my-10 text-5xl font-semibold text-white"
-          >0</canvas
+        <span
+          class="text-sm font-semibold tracking-widest text-slate-500 uppercase"
+          >Activity by hour</span
         >
+        <canvas id="activity"></canvas>
       </div>
+
+      <!-- Heatmap -->
       <div
-        class="flex flex-col items-center justify-center gap-6 rounded-2xl bg-slate-800 p-8"
+        class="flex flex-col gap-4 overflow-x-auto rounded-3xl bg-gray-900 p-6 shadow-2xl ring-1 ring-white/5"
       >
-        <span class="text-xl font-semibold text-slate-400">Heatmap</span>
-        <div id="heatmap" class="my-10 text-5xl font-semibold text-white"></div>
+        <span
+          class="text-sm font-semibold tracking-widest text-slate-500 uppercase"
+          >Heatmap</span
+        >
+        <div id="heatmap"></div>
       </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

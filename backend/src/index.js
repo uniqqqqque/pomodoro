@@ -3,31 +3,37 @@ const express = require("express");
 const app = express();
 
 const cors = require("cors");
-app.use(cors( {
-  origin: 'https://pomodoro.poliscuks.id.lv',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: [
+      "https://pomodoro.poliscuks.id.lv",
+      "http://127.0.0.1:5555",
+      "http://localhost:5555",
+    ],
+    credentials: true,
+  }),
+);
 
-const cookieParser = require('cookie-parser');
+const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
-const rateLimit = require('express-rate-limit');
+const rateLimit = require("express-rate-limit");
 
 const limiter = rateLimit({
-  windowMs: 15 * 60*1000, //15min
+  windowMs: 15 * 60 * 1000, //15min
   max: 100,
-  message: {message: 'Too many requests, please try again later'}
+  message: { message: "Too many requests, please try again later" },
 });
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60*1000, //15min
+  windowMs: 15 * 60 * 1000, //15min
   max: 10,
-  message: {message: 'Too many login attempt, please try again later'}
+  message: { message: "Too many login attempt, please try again later" },
 });
 
 app.use(limiter);
-app.use('/auth/login', authLimiter);
-app.use('/auth/register', authLimiter);
+app.use("/auth/login", authLimiter);
+app.use("/auth/register", authLimiter);
 
 app.use(express.json());
 
