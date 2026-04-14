@@ -22,18 +22,11 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
     const user_id = req.user.id;
-    const { task_id, duration, type, completed, started_at } = req.body;
+    const { duration, type, completed, started_at } = req.body;
     try {
       await pool.query(
-        "INSERT INTO sessions (user_id, task_id, duration, type, completed, started_at) VALUES ($1, $2, $3, $4, $5, $6)",
-        [
-          user_id,
-          task_id || null,
-          duration,
-          type,
-          completed,
-          started_at || new Date(),
-        ],
+        "INSERT INTO sessions (user_id, duration, type, completed, started_at) VALUES ($1, $2, $3, $4, $5)",
+        [user_id, duration, type, completed, started_at || new Date()],
       );
       return res.status(201).json({ message: "Session created" });
     } catch (err) {
@@ -62,7 +55,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const { completed } = req.body;
     await pool.query(
-      "UPDATE sessions SET completed = $1, ended_at = NOW() WHERE id = $2 AND user_id = $3",
+      "UPDATE sessions SET completed = $1 WHERE id = $2 AND user_id = $3",
       [completed, params_id, user_id],
     );
     return res.status(200).json({ message: "Session updated" });
@@ -75,7 +68,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
   try {
     const user_id = req.user.id;
     const params_id = req.params.id;
-    const sessions = await pool.query(
+    await pool.query(
       "DELETE FROM sessions WHERE id = $1 AND user_id = $2",
       [params_id, user_id],
     );
