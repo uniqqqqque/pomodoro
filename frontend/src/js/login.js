@@ -6,6 +6,7 @@ const loginBtn = document.getElementById("loginBtn");
 const registerBtn = document.getElementById("registerBtn");
 const errorMsg = document.getElementById("errorMsg");
 
+// show/hide password toggle — reused for both password fields
 function setupEyeToggle(inputId, btnId) {
   const input = document.getElementById(inputId);
   const btn = document.getElementById(btnId);
@@ -23,6 +24,7 @@ setupEyeToggle("confirmPassword", "toggleConfirmPassword");
 function showError(msg) {
   errorMsg.textContent = msg;
   errorMsg.classList.remove("hidden");
+  // highlight the fields red so the user knows what to fix
   [username, password].forEach((el) => {
     el.classList.add("ring-red-500/60");
     el.classList.remove("ring-white/5");
@@ -43,6 +45,7 @@ function clearError() {
 
 loginBtn.addEventListener("click", async () => {
   clearError();
+  // disable button while request is in flight to prevent double-submit
   loginBtn.disabled = true;
   loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Login';
   try {
@@ -62,9 +65,11 @@ loginBtn.addEventListener("click", async () => {
 });
 
 registerBtn.addEventListener("click", async () => {
+  // first click reveals the confirm password field, second click submits
   if (confirmPasswordWrapper.classList.contains("opacity-0")) {
     confirmPasswordWrapper.classList.remove("opacity-0", "pointer-events-none");
     confirmPasswordWrapper.classList.add("pointer-events-auto");
+    // retrigger the animation by forcing a reflow
     confirmPasswordWrapper.classList.remove("field-in");
     void confirmPasswordWrapper.offsetWidth;
     confirmPasswordWrapper.classList.add("field-in");
@@ -80,7 +85,7 @@ registerBtn.addEventListener("click", async () => {
     registerBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Register';
     try {
       const data = await register(username.value, password.value);
-      if (data.message === "Register is fine") {
+      if (data.message === "Registration successful") {
         navigateTo("index.html");
       } else {
         registerBtn.disabled = false;

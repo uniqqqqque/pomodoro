@@ -1,3 +1,4 @@
+// redirect if not logged in, otherwise populate username and rank in the header
 async function checkAuth() {
   const data = await apiFetch("/auth/check");
   if (!data || data.message !== "OK") {
@@ -15,6 +16,7 @@ async function logout() {
   navigateTo("login.html");
 }
 
+// convert raw minutes to HH:MM display string
 function formatMinutes(minutes) {
   const hour = Math.floor(minutes / 60);
   const min = minutes % 60;
@@ -22,6 +24,7 @@ function formatMinutes(minutes) {
 }
 
 async function loadStats() {
+  // pass the user's utc offset so the backend can group by local time
   const utcOffset = -new Date().getTimezoneOffset();
   const total = await apiFetch("/stats/total");
   const today = await apiFetch(`/stats/today?utcOffset=${utcOffset}`);
@@ -39,6 +42,7 @@ async function loadStats() {
     week[0]?.week_minutes || 0,
   );
 
+  // fill in all 24 hours so the chart always shows a full day even if some hours are empty
   const activityByHour = Array.from({ length: 24 }, (_, i) => {
     const found = activity.find((h) => parseInt(h.hour) === i);
     return found ? parseInt(found.minutes) : 0;
@@ -69,6 +73,7 @@ async function loadStats() {
   const streak = calcStreak(heatmap);
   document.getElementById("streak").textContent = streak;
 
+  // average only over days that had at least one session
   const activeDays = heatmap.filter((d) => parseInt(d.sessions) > 0).length;
   const avgMinutes =
     activeDays > 0 ? Math.round(total[0].total_minutes / activeDays) : 0;
@@ -77,6 +82,7 @@ async function loadStats() {
   renderHeatmap(heatmap);
 }
 
+// count consecutive days with sessions going back from today
 function calcStreak(heatmapData) {
   const sessionMap = {};
   heatmapData.forEach((d) => {
@@ -100,6 +106,7 @@ function calcStreak(heatmapData) {
   return streak;
 }
 
+// github-style contribution heatmap — pure SVG, no library
 function renderHeatmap(data) {
   const container = document.getElementById("heatmap");
   container.innerHTML = "";
@@ -107,28 +114,20 @@ function renderHeatmap(data) {
   const CELL = 11;
   const GAP = 3;
   const STEP = CELL + GAP;
-  const LEFT_PAD = 28;
-  const TOP_PAD = 20;
+  const LEFT_PAD = 28; // space for Mon/Wed/Fri labels
+  const TOP_PAD = 20;  // space for month labels
   const MONTHS = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
   ];
 
+  // build a quick lookup: "2025-04-14" → session count
   const sessionMap = {};
   data.forEach((d) => {
     sessionMap[d.date.split("T")[0]] = parseInt(d.sessions);
   });
 
+  // start 52 weeks ago, aligned to Monday
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const startDate = new Date(today);
@@ -150,6 +149,7 @@ function renderHeatmap(data) {
   svg.setAttribute("width", svgW);
   svg.setAttribute("height", svgH);
 
+  // orange intensity scale — 0 sessions is the dark background color
   function getColor(n) {
     if (!n) return "#1e293b";
     if (n <= 2) return "#7c2d12";
@@ -158,7 +158,7 @@ function renderHeatmap(data) {
     return "#f97316";
   }
 
-  // Month labels
+  // month labels across the top — only place one when the week starts a new month
   let lastMonth = -1;
   days.forEach((date, i) => {
     const week = Math.floor(i / 7);
@@ -178,7 +178,7 @@ function renderHeatmap(data) {
     }
   });
 
-  // Day labels
+  // day-of-week labels on the left — only Mon, Wed, Fri to keep it clean
   ["Mon", "", "Wed", "", "Fri", "", ""].forEach((label, i) => {
     if (!label) return;
     const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -192,16 +192,16 @@ function renderHeatmap(data) {
     svg.appendChild(text);
   });
 
-  // Tooltip
+  // tooltip div — fixed position follows the mouse
   const tooltip = document.createElement("div");
   tooltip.style.cssText =
     "position:fixed;background:#0f172a;color:#f1f5f9;padding:5px 10px;border-radius:8px;font-size:11px;font-family:'JetBrains Mono',monospace;pointer-events:none;opacity:0;transition:opacity 0.12s;z-index:100;border:1px solid rgba(255,255,255,0.08);";
   document.body.appendChild(tooltip);
 
-  // Cells
+  // draw one rect per day
   days.forEach((date, i) => {
     const week = Math.floor(i / 7);
-    const dow = (date.getDay() + 6) % 7;
+    const dow = (date.getDay() + 6) % 7; // 0=Mon … 6=Sun
     const dateStr = date.toISOString().split("T")[0];
     const count = sessionMap[dateStr] || 0;
 

@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 
+// verify the jwt from the httponly cookie and attach the decoded user to req
 const authMiddleware = (req, res, next) => {
   const token = req.cookies.token;
   if (!token) {
@@ -10,6 +11,7 @@ const authMiddleware = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
+    // covers expired tokens and tampered signatures
     return res.status(401).json({ message: "Invalid token" });
   }
 };

@@ -47,6 +47,7 @@ router.post(
       if (existingUsername.rows.length > 0) {
         return res.status(400).json({ message: "Username already exists" });
       }
+
       const passwordHash = await bcrypt.hash(password, 10);
       await pool.query(
         "INSERT INTO users (username, password_hash, created_at) VALUES ($1, $2, NOW())",
@@ -67,43 +68,45 @@ router.post(
     body("password").notEmpty().withMessage("Password is required"),
   ],
   async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ message: "Username and password are required" });
-  }
-  try {
-    const { username, password } = req.body;
-    const user = await pool.query("SELECT * FROM users WHERE username = $1", [
-      username,
-    ]);
-    if (user.rows.length > 0) {
-      const isMatch = await bcrypt.compare(
-        password,
-        user.rows[0].password_hash,
-      );
-      if (!isMatch) {
-        return res.status(400).json({ message: "Wrong password" });
-      }
-      const token = jwt.sign({ id: user.rows[0].id }, process.env.JWT_SECRET, {
-        expiresIn: "7d",
-      });
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, //7days in ms
-      });
-      return res.status(200).json({ message: "Login accepted" });
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: "Username and password are required" });
     }
-    return res.status(400).json({ message: "User not found" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-},
+    try {
+      const { username, password } = req.body;
+      const user = await pool.query("SELECT * FROM users WHERE username = $1", [
+        username,
+      ]);
+      if (user.rows.length > 0) {
+        const isMatch = await bcrypt.compare(
+          password,
+          user.rows[0].password_hash,
+        );
+        if (!isMatch) {
+          return res.status(400).json({ message: "Wrong password" });
+        }
+        const token = jwt.sign({ id: user.rows[0].id }, process.env.JWT_SECRET, {
+          expiresIn: "7d",
+        });
+        // httponly so js can't read it, secure + samesite for csrf protection
+        res.cookie("token", token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "strict",
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+        return res.status(200).json({ message: "Login accepted" });
+      }
+      return res.status(400).json({ message: "User not found" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+    }
+  },
 );
 
 router.post("/logout", async (req, res) => {
+  // clear with the same options the cookie was set with, otherwise it won't be removed
   res.clearCookie("token", {
     httpOnly: true,
     secure: true,
@@ -112,11 +115,13 @@ router.post("/logout", async (req, res) => {
   res.status(200).json({ message: "Logged out" });
 });
 
+// used by the frontend on every page load to verify the session is still valid
 router.get("/check", authMiddleware, async (req, res) => {
   try {
     const user = await pool.query("SELECT username FROM users WHERE id = $1", [
       req.user.id,
     ]);
+    // rank is based on total focus minutes over the last 30 days
     const minutes = await pool.query(
       "SELECT COALESCE(SUM(duration), 0) as minutes FROM sessions WHERE user_id = $1 AND type = 'work' AND completed = true AND started_at >= NOW() - INTERVAL '30 days'",
       [req.user.id],

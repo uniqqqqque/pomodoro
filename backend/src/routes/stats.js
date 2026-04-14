@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require("../database");
 const authMiddleware = require("../middleware/auth");
 
+// all-time total focus minutes
 router.get("/total", authMiddleware, async (req, res) => {
   const user_id = req.user.id;
   try {
@@ -16,6 +17,7 @@ router.get("/total", authMiddleware, async (req, res) => {
   }
 });
 
+// today's focus minutes — offset is the user's utc offset in minutes so we compare local dates
 router.get("/today", authMiddleware, async (req, res) => {
   const user_id = req.user.id;
   const utcOffset = parseInt(req.query.utcOffset) || 0;
@@ -30,6 +32,7 @@ router.get("/today", authMiddleware, async (req, res) => {
   }
 });
 
+// last 7 days
 router.get("/week", authMiddleware, async (req, res) => {
   const user_id = req.user.id;
   try {
@@ -43,6 +46,7 @@ router.get("/week", authMiddleware, async (req, res) => {
   }
 });
 
+// minutes per hour for today's bar chart — offset applied so hours match local time
 router.get("/activity", authMiddleware, async (req, res) => {
   const user_id = req.user.id;
   const utcOffset = parseInt(req.query.utcOffset) || 0;
@@ -57,6 +61,7 @@ router.get("/activity", authMiddleware, async (req, res) => {
   }
 });
 
+// session counts per day for the last 365 days — used to draw the heatmap
 router.get("/heatmap", authMiddleware, async (req, res) => {
   const user_id = req.user.id;
   const utcOffset = parseInt(req.query.utcOffset) || 0;

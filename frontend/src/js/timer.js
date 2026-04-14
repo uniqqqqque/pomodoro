@@ -1,3 +1,4 @@
+// redirect to login if not authenticated, otherwise show username/rank in header
 async function checkAuth() {
   const data = await apiFetch("/auth/check");
   if (!data || data.message !== "OK") {
@@ -15,6 +16,7 @@ async function logout() {
   navigateTo("login.html");
 }
 
+// timer state — all durations in seconds
 let mode = "work";
 let pomodoroCount = 0;
 let workTime = 1500;
@@ -28,7 +30,7 @@ const audio = new Audio(
 let timeLeft = workTime;
 let isRunning = false;
 let intervalId = null;
-let sessionStartedAt = null;
+let sessionStartedAt = null; // tracked so we store the real start time, not the end time
 
 const icons = {
   work: "fa-brain",
@@ -47,6 +49,7 @@ const modeLabels = {
 
 modeIcon.className = `fa-solid ${icons[mode]} text-base text-orange-400`;
 
+// rebuild the progress dots whenever pomodorosUntilLongBreak changes
 function renderDots() {
   const container = document.getElementById("dotsContainer");
   container.innerHTML = "";
@@ -58,6 +61,7 @@ function renderDots() {
   }
 }
 
+// color dots based on how many pomodoros are done in the current cycle
 function updateDots() {
   const filled = pomodoroCount % pomodorosUntilLongBreak;
   for (let i = 0; i < pomodorosUntilLongBreak; i++) {
@@ -74,6 +78,7 @@ function formatTime(seconds) {
   return `${min.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
 }
 
+// sync everything visible: timer text, mode label, ring color and progress
 function updateDisplay() {
   const timer = document.getElementById("timer");
   timer.textContent = formatTime(timeLeft);
@@ -83,12 +88,16 @@ function updateDisplay() {
   modeLabel.className = `text-2xl font-semibold tracking-widest uppercase ${color}`;
   modeLabel.textContent = modeLabels[mode];
   updateDots();
+
+  // ring color changes based on mode
   const ring = document.getElementById("progressRing");
   if (mode === "work") {
     ring.style.stroke = "#f97316";
   } else {
     ring.style.stroke = "#4ade80";
   }
+
+  // strokeDashoffset shrinks as time runs out — 879.6 is the full circumference
   const circumference = 879.6;
   let totalTime;
   if (mode === "work") {
@@ -105,6 +114,7 @@ function updateDisplay() {
 async function startTimer() {
   if (isRunning) return;
   isRunning = true;
+  // only record start time on the first tick, not on resume
   if (!sessionStartedAt) sessionStartedAt = new Date().toISOString();
   intervalId = setInterval(async () => {
     timeLeft--;
@@ -114,6 +124,8 @@ async function startTimer() {
       isRunning = false;
       document.getElementById("startBtn").innerHTML =
         '<i class="fa-solid fa-play"></i>';
+
+      // only save work sessions, not breaks
       if (mode === "work") {
         await apiFetch("/sessions", "POST", {
           duration: Math.round(workTime / 60),
@@ -123,17 +135,21 @@ async function startTimer() {
         });
         sessionStartedAt = null;
       }
+
       if (mode === "work") {
         showNotification("Break time!", "Take a great chill!");
       } else {
         showNotification("Work Time!", "Cmon, just finish your work!");
       }
+
       switchMode();
       updateDisplay();
+
       if (isSoundEnabled()) {
         audio.currentTime = 0;
         audio.play();
       }
+
       if (isAutoResumeEnabled()) {
         startTimer();
         document.getElementById("startBtn").innerHTML =
@@ -161,6 +177,7 @@ function resetTimer() {
   updateDots();
 }
 
+// after N work sessions, switch to long break; otherwise short break
 function switchMode() {
   if (mode === "work") {
     pomodoroCount++;
@@ -183,6 +200,7 @@ function requestNotificationPermission() {
   }
 }
 
+// check toggle state by looking for the "active" class on the button
 function isSoundEnabled() {
   return document.getElementById("toggleSound").classList.contains("active");
 }
@@ -207,6 +225,7 @@ function showNotification(title, body) {
 
 requestNotificationPermission();
 
+// if the user toggled notifications on but the browser denied permission, turn it back off
 document.getElementById("toggleNotifications").addEventListener("click", () => {
   const btn = document.getElementById("toggleNotifications");
   const isNowActive = btn.classList.contains("active");
@@ -222,6 +241,7 @@ document.getElementById("toggleNotifications").addEventListener("click", () => {
   }
 });
 
+// single button handles both play and pause
 const startBtn = document.getElementById("startBtn");
 
 startBtn.addEventListener("click", () => {
@@ -241,6 +261,7 @@ document.getElementById("resetBtn").addEventListener("click", () => {
 
 document.getElementById("logoutBtn").addEventListener("click", logout);
 
+// settings inputs — clamp to min 1 and update live if timer isn't running
 document.getElementById("settingPomodoro").addEventListener("change", (e) => {
   const val = Math.max(1, parseInt(e.target.value) || 1);
   e.target.value = val;
@@ -285,6 +306,7 @@ document
     saveSettings();
   });
 
+// persist timer state so navigating to stats and back doesn't reset it
 function saveTimerState() {
   localStorage.setItem(
     "pomodoroTimerState",
@@ -341,6 +363,7 @@ function loadSettings() {
 loadSettings();
 if (loadTimerState()) updateDisplay();
 
+// pause and save state before navigating away so we can restore it on return
 document
   .querySelector('a[href="stats.html"]')
   .addEventListener("click", (e) => {

@@ -4,6 +4,7 @@ const pool = require("../database");
 const authMiddleware = require("../middleware/auth");
 const { body, validationResult } = require("express-validator");
 
+// called when a pomodoro finishes — saves the completed work session
 router.post(
   "/",
   authMiddleware,
@@ -26,6 +27,7 @@ router.post(
     try {
       await pool.query(
         "INSERT INTO sessions (user_id, duration, type, completed, started_at) VALUES ($1, $2, $3, $4, $5)",
+        // fall back to now() if client didn't send a start time
         [user_id, duration, type, completed, started_at || new Date()],
       );
       return res.status(201).json({ message: "Session created" });

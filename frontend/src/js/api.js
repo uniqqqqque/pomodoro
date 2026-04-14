@@ -1,12 +1,15 @@
+// register service worker for PWA support
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./service-worker.js").catch(() => {});
 }
 
+// point to local backend when developing, prod otherwise
 const API_URL =
   location.hostname === "localhost" || location.hostname === "127.0.0.1"
     ? `http://${location.hostname}:3002`
     : "https://pomodoro.poliscuks.id.lv/api";
 
+// stagger-in animation for all elements marked with .animate
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".animate").forEach((el, i) => {
     el.style.animationDelay = `${i * 120}ms`;
@@ -14,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// fade out before navigating so it doesn't feel jarring
 function navigateTo(url) {
   document.body.style.transition =
     "opacity 0.15s ease-out, transform 0.15s ease-out";
@@ -46,6 +50,7 @@ async function register(username, password) {
   return data;
 }
 
+// generic fetch wrapper — credentials:include sends the httponly cookie automatically
 async function apiFetch(endpoint, method = "GET", body = null) {
   const options = {
     method: method,
