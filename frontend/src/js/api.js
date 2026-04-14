@@ -1,3 +1,7 @@
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+}
+
 const API_URL =
   location.hostname === "localhost" || location.hostname === "127.0.0.1"
     ? `http://${location.hostname}:3002`
