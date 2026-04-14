@@ -22,7 +22,7 @@ router.post(
       .matches(/^\S+$/)
       .withMessage("Password cannot contain spaces")
       .matches(/[a-z]/)
-      .withMessage("Password must contain at least one lowecase letter")
+      .withMessage("Password must contain at least one lowercase letter")
       .matches(/[A-Z]/)
       .withMessage("Password must contain at least one uppercase letter")
       .matches(/[!@#$%^&*]/)
@@ -59,7 +59,17 @@ router.post(
   },
 );
 
-router.post("/login", async (req, res) => {
+router.post(
+  "/login",
+  [
+    body("username").trim().notEmpty().withMessage("Username is required"),
+    body("password").notEmpty().withMessage("Password is required"),
+  ],
+  async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ message: "Username and password are required" });
+  }
   try {
     const { username, password } = req.body;
     const user = await pool.query("SELECT * FROM users WHERE username = $1", [
@@ -89,7 +99,8 @@ router.post("/login", async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
-});
+},
+);
 
 router.post("/logout", async (req, res) => {
   res.clearCookie("token", {
@@ -102,8 +113,16 @@ router.post("/logout", async (req, res) => {
 
 router.get("/check", authMiddleware, async (req, res) => {
   try {
-    const user = await pool.query("SELECT username FROM users WHERE id = $1", [req.user.id]);
-    res.status(200).json({ message: "OK", userId: req.user.id, username: user.rows[0].username });
+    const user = await pool.query("SELECT username FROM users WHERE id = $1", [
+      req.user.id,
+    ]);
+    res
+      .status(200)
+      .json({
+        message: "OK",
+        userId: req.user.id,
+        username: user.rows[0].username,
+      });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }

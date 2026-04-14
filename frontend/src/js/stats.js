@@ -3,7 +3,8 @@ async function checkAuth() {
   if (!data || data.message !== "OK") {
     navigateTo("login.html");
   } else {
-    document.getElementById("usernameLabel").textContent = data.username + "/pomodoro";
+    document.getElementById("usernameLabel").textContent =
+      data.username + "/pomodoro";
   }
 }
 checkAuth();
@@ -28,13 +29,13 @@ async function loadStats() {
   const heatmap = await apiFetch(`/stats/heatmap?utcOffset=${utcOffset}`);
 
   document.getElementById("total").textContent = formatMinutes(
-    total[0].total_minutes,
+    total[0]?.total_minutes || 0,
   );
   document.getElementById("today").textContent = formatMinutes(
-    today[0].today_minutes,
+    today[0]?.today_minutes || 0,
   );
   document.getElementById("week").textContent = formatMinutes(
-    week[0].week_minutes,
+    week[0]?.week_minutes || 0,
   );
 
   const activityByHour = Array.from({ length: 24 }, (_, i) => {
@@ -45,8 +46,9 @@ async function loadStats() {
   new Chart(document.getElementById("activity"), {
     type: "bar",
     data: {
-      labels: Array.from({ length: 24 }, (_, i) =>
-        i.toString().padStart(2, "0") + ":00",
+      labels: Array.from(
+        { length: 24 },
+        (_, i) => i.toString().padStart(2, "0") + ":00",
       ),
       datasets: [
         {
