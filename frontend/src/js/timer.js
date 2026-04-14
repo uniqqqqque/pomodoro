@@ -3,7 +3,9 @@ async function checkAuth() {
   if (!data || data.message !== "OK") {
     navigateTo("login.html");
   } else {
-    document.getElementById("usernameLabel").textContent = data.username + "/pomodoro";
+    document.getElementById("usernameLabel").textContent =
+      data.username + "/pomodoro";
+    document.getElementById("rankBadge").textContent = data.rank;
   }
 }
 checkAuth();
@@ -339,10 +341,22 @@ function loadSettings() {
 loadSettings();
 if (loadTimerState()) updateDisplay();
 
-document.querySelector('a[href="stats.html"]').addEventListener("click", (e) => {
-  e.preventDefault();
-  pauseTimer();
-  startBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
-  saveTimerState();
-  navigateTo("stats.html");
-});
+document
+  .querySelector('a[href="stats.html"]')
+  .addEventListener("click", (e) => {
+    e.preventDefault();
+    pauseTimer();
+    startBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+    saveTimerState();
+    navigateTo("stats.html");
+  });
+
+document
+  .querySelector('a[href="leaderboard.html"]')
+  .addEventListener("click", (e) => {
+    e.preventDefault();
+    pauseTimer();
+    startBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+    saveTimerState();
+    navigateTo("leaderboard.html");
+  });

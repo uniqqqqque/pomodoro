@@ -5,6 +5,7 @@ const pool = require("../database");
 const jwt = require("jsonwebtoken");
 const { body, validationResult } = require("express-validator");
 const authMiddleware = require("../middleware/auth");
+const { getRank } = require("./leaderboard");
 
 router.post(
   "/register",
@@ -116,13 +117,16 @@ router.get("/check", authMiddleware, async (req, res) => {
     const user = await pool.query("SELECT username FROM users WHERE id = $1", [
       req.user.id,
     ]);
-    res
-      .status(200)
-      .json({
-        message: "OK",
-        userId: req.user.id,
-        username: user.rows[0].username,
-      });
+    const minutes = await pool.query(
+      "SELECT COALESCE(SUM(duration), 0) as minutes FROM sessions WHERE user_id = $1 AND type = 'work' AND completed = true AND started_at >= NOW() - INTERVAL '30 days'",
+      [req.user.id],
+    );
+    res.status(200).json({
+      message: "OK",
+      userId: req.user.id,
+      username: user.rows[0].username,
+      rank: getRank(parseInt(minutes.rows[0].minutes)),
+    });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }

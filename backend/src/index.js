@@ -62,6 +62,9 @@ app.use("/tasks", tasks);
 const stats = require("./routes/stats");
 app.use("/stats", stats);
 
+const { router: leaderboard } = require("./routes/leaderboard");
+app.use("/leaderboard", leaderboard);
+
 const PORT = process.env.PORT;
 
 app.listen(PORT, () => {

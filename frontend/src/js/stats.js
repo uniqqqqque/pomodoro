@@ -5,6 +5,7 @@ async function checkAuth() {
   } else {
     document.getElementById("usernameLabel").textContent =
       data.username + "/pomodoro";
+    document.getElementById("rankBadge").textContent = data.rank;
   }
 }
 checkAuth();
