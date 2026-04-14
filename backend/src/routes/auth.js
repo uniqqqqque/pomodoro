@@ -52,7 +52,7 @@ router.post(
         "INSERT INTO users (username, password_hash, created_at) VALUES ($1, $2, NOW())",
         [username, passwordHash],
       );
-      res.status(201).json({ message: "Register is fine" });
+      res.status(201).json({ message: "Registration successful" });
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Server error" });

@@ -69,15 +69,15 @@ async function loadLeaderboard(period) {
         ${medal ?? row.position}
       </span>
       <div class="flex flex-1 flex-col gap-0.5 min-w-0">
-        <span class="truncate text-sm font-semibold ${isMe ? "text-orange-400" : "text-white"}">
-          ${row.username}
-        </span>
-        <span class="text-xs text-slate-500">${row.rank}</span>
+        <span class="truncate text-sm font-semibold ${isMe ? "text-orange-400" : "text-white"}" data-username></span>
+        <span class="text-xs text-slate-500" data-rank></span>
       </div>
       <span class="font-mono text-sm font-semibold ${isMe ? "text-orange-400" : "text-slate-300"}">
         ${formatMinutes(row.minutes)}
       </span>
     `;
+    el.querySelector("[data-username]").textContent = row.username;
+    el.querySelector("[data-rank]").textContent = row.rank;
 
     list.appendChild(el);
   });

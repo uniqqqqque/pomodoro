@@ -59,8 +59,6 @@ app.use("/auth", authRoutes);
 const sessions = require("./routes/sessions");
 app.use("/sessions", sessions);
 
-const tasks = require("./routes/tasks");
-app.use("/tasks", tasks);
 
 const stats = require("./routes/stats");
 app.use("/stats", stats);

@@ -1,29 +1,19 @@
 CREATE TABLE users (
 id SERIAL PRIMARY KEY,
 username TEXT UNIQUE NOT NULL,
-email TEXT,
 password_hash TEXT NOT NULL,
 created_at TIMESTAMP
-);
-
-CREATE TABLE tasks (
-id SERIAL PRIMARY KEY,
-user_id INTEGER NOT NULL,
-title TEXT,
-color TEXT,
-created_at TIMESTAMP,
-FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE sessions (
 id SERIAL PRIMARY KEY,
 user_id INTEGER NOT NULL,
-task_id INTEGER,
 duration INTEGER,
 type TEXT,
 completed BOOL,
 started_at TIMESTAMP,
-ended_at TIMESTAMP,
-FOREIGN KEY (user_id) REFERENCES users(id),
-FOREIGN KEY (task_id) REFERENCES tasks(id)
-)
+FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE INDEX idx_sessions_user_id ON sessions(user_id);
+CREATE INDEX idx_sessions_filter ON sessions(user_id, type, completed, started_at);
