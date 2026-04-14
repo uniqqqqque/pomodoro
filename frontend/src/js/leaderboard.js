@@ -72,7 +72,7 @@ async function loadLeaderboard(period) {
         <span class="truncate text-sm font-semibold ${isMe ? "text-orange-400" : "text-white"}">
           ${row.username}
         </span>
-        <span class="text-xs tracking-widest text-slate-500 uppercase">${row.rank}</span>
+        <span class="text-xs text-slate-500">${row.rank}</span>
       </div>
       <span class="font-mono text-sm font-semibold ${isMe ? "text-orange-400" : "text-slate-300"}">
         ${formatMinutes(row.minutes)}
