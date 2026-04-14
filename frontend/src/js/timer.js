@@ -2,6 +2,8 @@ async function checkAuth() {
   const data = await apiFetch("/auth/check");
   if (!data || data.message !== "OK") {
     navigateTo("login.html");
+  } else {
+    document.getElementById("usernameLabel").textContent = data.username + "/pomodoro";
   }
 }
 checkAuth();

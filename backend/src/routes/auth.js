@@ -4,13 +4,11 @@ const bcrypt = require("bcrypt");
 const pool = require("../database");
 const jwt = require("jsonwebtoken");
 const { body, validationResult } = require("express-validator");
-const { sendWelcomeEmail } = require("../email");
 const authMiddleware = require("../middleware/auth");
 
 router.post(
   "/register",
   [
-    body("email").isEmail(),
     body("username")
       .trim()
       .notEmpty()
@@ -39,14 +37,7 @@ router.post(
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
-      const { username, email, password } = req.body;
-      const existingEmail = await pool.query(
-        "SELECT id FROM users WHERE email = $1",
-        [email],
-      );
-      if (existingEmail.rows.length > 0) {
-        return res.status(400).json({ message: "Email already exists" });
-      }
+      const { username, password } = req.body;
 
       const existingUsername = await pool.query(
         "SELECT id FROM users WHERE username = $1",
@@ -57,10 +48,9 @@ router.post(
       }
       const passwordHash = await bcrypt.hash(password, 10);
       await pool.query(
-        "INSERT INTO users (username, email, password_hash, created_at) VALUES ($1, $2, $3, NOW())",
-        [username, email, passwordHash],
+        "INSERT INTO users (username, password_hash, created_at) VALUES ($1, $2, NOW())",
+        [username, passwordHash],
       );
-      await sendWelcomeEmail(email, username);
       res.status(201).json({ message: "Register is fine" });
     } catch (err) {
       console.error(err);
@@ -110,8 +100,13 @@ router.post("/logout", async (req, res) => {
   res.status(200).json({ message: "Logged out" });
 });
 
-router.get("/check", authMiddleware, (req, res) => {
-  res.status(200).json({ message: "OK", userId: req.user.id });
+router.get("/check", authMiddleware, async (req, res) => {
+  try {
+    const user = await pool.query("SELECT username FROM users WHERE id = $1", [req.user.id]);
+    res.status(200).json({ message: "OK", userId: req.user.id, username: user.rows[0].username });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 module.exports = router;

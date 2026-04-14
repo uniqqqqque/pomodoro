@@ -26,9 +26,16 @@
       <div class="animate flex items-center justify-between px-1">
         <span
           class="text-base font-bold tracking-widest text-orange-400 uppercase"
+          id="usernameLabel"
           >uniqque/pomodoro</span
         >
         <div class="flex gap-2">
+          <button
+            id="infoBtn"
+            class="h-9 w-9 cursor-pointer rounded-xl bg-slate-800 text-slate-400 transition hover:bg-slate-700 hover:text-white"
+          >
+            <i class="fa-solid fa-circle-info text-sm"></i>
+          </button>
           <a href="stats.html">
             <button
               id="statsBtn"
@@ -127,6 +134,48 @@
         </div>
       </div>
     </div>
+    <!-- Info modal -->
+    <div
+      id="infoModal"
+      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 px-4 backdrop-blur-sm"
+    >
+      <div
+        class="modal-animate flex w-full max-w-sm flex-col gap-5 rounded-3xl bg-gray-900 p-6 shadow-2xl ring-1 ring-white/5"
+      >
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-bold tracking-widest text-slate-400 uppercase">About</span>
+          <button
+            id="infoCloseBtn"
+            class="h-8 w-8 cursor-pointer rounded-xl bg-slate-800 text-slate-400 transition hover:bg-slate-700 hover:text-white active:scale-95"
+          >
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <div class="flex flex-col gap-3 rounded-2xl bg-slate-800/50 px-4 py-4">
+          <p class="text-sm font-semibold tracking-widest text-orange-400 uppercase">What is Pomodoro?</p>
+          <p class="text-sm leading-relaxed text-slate-300">
+            The Pomodoro Technique is a time management method — work for
+            <span class="text-white font-medium">25 minutes</span>, then take a
+            <span class="text-white font-medium">5-minute break</span>. After 4 cycles, take a longer break.
+            It helps maintain focus and avoid burnout.
+          </p>
+        </div>
+
+        <div class="flex flex-col items-center gap-2 rounded-2xl bg-slate-800/50 px-4 py-4">
+          <p class="text-sm text-slate-400">Made with <i class="fa-solid fa-heart text-orange-400"></i> in Latvia</p>
+          <a
+            href="https://github.com/uniqqqqque"
+            target="_blank"
+            class="flex items-center gap-2 text-sm text-slate-300 transition hover:text-white"
+          >
+            <i class="fa-brands fa-github"></i>
+            github.com/uniqqqqque
+          </a>
+        </div>
+      </div>
+    </div>
+
     <!-- Settings modal -->
     <div
       id="settingsModal"
@@ -338,6 +387,26 @@
         } else {
           document.documentElement.classList.remove("light");
           localStorage.theme = "dark";
+        }
+      });
+
+      const infoModal = document.getElementById("infoModal");
+      const infoModalInner = infoModal.querySelector("div");
+      document.getElementById("infoBtn").addEventListener("click", () => {
+        infoModal.classList.remove("hidden");
+        infoModal.classList.add("flex");
+        infoModalInner.classList.remove("modal-animate");
+        void infoModalInner.offsetWidth;
+        infoModalInner.classList.add("modal-animate");
+      });
+      document.getElementById("infoCloseBtn").addEventListener("click", () => {
+        infoModal.classList.add("hidden");
+        infoModal.classList.remove("flex");
+      });
+      infoModal.addEventListener("click", (e) => {
+        if (e.target === infoModal) {
+          infoModal.classList.add("hidden");
+          infoModal.classList.remove("flex");
         }
       });
     </script>

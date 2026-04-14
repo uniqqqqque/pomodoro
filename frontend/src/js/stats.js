@@ -2,6 +2,8 @@ async function checkAuth() {
   const data = await apiFetch("/auth/check");
   if (!data || data.message !== "OK") {
     navigateTo("login.html");
+  } else {
+    document.getElementById("usernameLabel").textContent = data.username + "/pomodoro";
   }
 }
 checkAuth();
@@ -18,11 +20,12 @@ function formatMinutes(minutes) {
 }
 
 async function loadStats() {
+  const utcOffset = -new Date().getTimezoneOffset();
   const total = await apiFetch("/stats/total");
-  const today = await apiFetch("/stats/today");
+  const today = await apiFetch(`/stats/today?utcOffset=${utcOffset}`);
   const week = await apiFetch("/stats/week");
-  const activity = await apiFetch("/stats/activity");
-  const heatmap = await apiFetch("/stats/heatmap");
+  const activity = await apiFetch(`/stats/activity?utcOffset=${utcOffset}`);
+  const heatmap = await apiFetch(`/stats/heatmap?utcOffset=${utcOffset}`);
 
   document.getElementById("total").textContent = formatMinutes(
     total[0].total_minutes,
