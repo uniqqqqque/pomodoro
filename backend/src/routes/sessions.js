@@ -5,17 +5,16 @@ const authMiddleware = require("../middleware/auth");
 
 router.post("/", authMiddleware, async (req, res) => {
   const user_id = req.user.id;
-  const { task_id, duration, type, completed, ended_at } = req.body;
+  const { task_id, duration, type, completed, started_at } = req.body;
   try {
     await pool.query(
-      "INSERT INTO sessions (user_id, task_id, duration, type, completed, started_at) VALUES ($1, $2, $3, $4, $5, NOW())",
-      [user_id, task_id, duration, type, completed],
+      "INSERT INTO sessions (user_id, task_id, duration, type, completed, started_at) VALUES ($1, $2, $3, $4, $5, $6)",
+      [user_id, task_id, duration, type, completed, started_at || new Date()],
     );
     return res.status(201).json({ message: "Session created" });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
-    
   }
 });
 

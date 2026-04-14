@@ -1,6 +1,6 @@
 async function checkAuth() {
   const data = await apiFetch("/auth/check");
-  if (!data || data.message === "No token provided") {
+  if (!data || data.message !== "OK") {
     navigateTo("login.html");
   }
 }
@@ -24,6 +24,7 @@ const audio = new Audio(
 let timeLeft = workTime;
 let isRunning = false;
 let intervalId = null;
+let sessionStartedAt = null;
 
 const icons = {
   work: "fa-brain",
@@ -100,6 +101,7 @@ function updateDisplay() {
 async function startTimer() {
   if (isRunning) return;
   isRunning = true;
+  sessionStartedAt = new Date().toISOString();
   intervalId = setInterval(async () => {
     timeLeft--;
     updateDisplay();
@@ -113,6 +115,7 @@ async function startTimer() {
           duration: Math.round(workTime / 60),
           type: "work",
           completed: true,
+          started_at: sessionStartedAt,
         });
       }
       if (mode === "work") {
@@ -128,7 +131,8 @@ async function startTimer() {
       }
       if (isAutoResumeEnabled()) {
         startTimer();
-        document.getElementById("startBtn").innerHTML = '<i class="fa-solid fa-pause"></i>';
+        document.getElementById("startBtn").innerHTML =
+          '<i class="fa-solid fa-pause"></i>';
       }
     }
   }, 1000);
@@ -234,7 +238,10 @@ document.getElementById("settingPomodoro").addEventListener("change", (e) => {
   const val = Math.max(1, parseInt(e.target.value) || 1);
   e.target.value = val;
   workTime = val * 60;
-  if (mode === "work" && !isRunning) { timeLeft = workTime; updateDisplay(); }
+  if (mode === "work" && !isRunning) {
+    timeLeft = workTime;
+    updateDisplay();
+  }
   saveSettings();
 });
 
@@ -242,7 +249,10 @@ document.getElementById("settingShortBreak").addEventListener("change", (e) => {
   const val = Math.max(1, parseInt(e.target.value) || 1);
   e.target.value = val;
   shortBreak = val * 60;
-  if (mode === "short_break" && !isRunning) { timeLeft = shortBreak; updateDisplay(); }
+  if (mode === "short_break" && !isRunning) {
+    timeLeft = shortBreak;
+    updateDisplay();
+  }
   saveSettings();
 });
 
@@ -250,31 +260,55 @@ document.getElementById("settingLongBreak").addEventListener("change", (e) => {
   const val = Math.max(1, parseInt(e.target.value) || 1);
   e.target.value = val;
   longBreak = val * 60;
-  if (mode === "long_break" && !isRunning) { timeLeft = longBreak; updateDisplay(); }
+  if (mode === "long_break" && !isRunning) {
+    timeLeft = longBreak;
+    updateDisplay();
+  }
   saveSettings();
 });
 
-document.getElementById("settingPomodorosUntil").addEventListener("change", (e) => {
-  const val = Math.max(1, parseInt(e.target.value) || 1);
-  e.target.value = val;
-  pomodorosUntilLongBreak = val;
-  renderDots();
-  updateDots();
-  saveSettings();
-});
+document
+  .getElementById("settingPomodorosUntil")
+  .addEventListener("change", (e) => {
+    const val = Math.max(1, parseInt(e.target.value) || 1);
+    e.target.value = val;
+    pomodorosUntilLongBreak = val;
+    renderDots();
+    updateDots();
+    saveSettings();
+  });
 
 function saveSettings() {
-  localStorage.setItem("pomodoroSettings", JSON.stringify({
-    workTime, shortBreak, longBreak, pomodorosUntilLongBreak,
-  }));
+  localStorage.setItem(
+    "pomodoroSettings",
+    JSON.stringify({
+      workTime,
+      shortBreak,
+      longBreak,
+      pomodorosUntilLongBreak,
+    }),
+  );
 }
 
 function loadSettings() {
   const s = JSON.parse(localStorage.getItem("pomodoroSettings") || "{}");
-  if (s.workTime) { workTime = s.workTime; document.getElementById("settingPomodoro").value = workTime / 60; }
-  if (s.shortBreak) { shortBreak = s.shortBreak; document.getElementById("settingShortBreak").value = shortBreak / 60; }
-  if (s.longBreak) { longBreak = s.longBreak; document.getElementById("settingLongBreak").value = longBreak / 60; }
-  if (s.pomodorosUntilLongBreak) { pomodorosUntilLongBreak = s.pomodorosUntilLongBreak; document.getElementById("settingPomodorosUntil").value = pomodorosUntilLongBreak; }
+  if (s.workTime) {
+    workTime = s.workTime;
+    document.getElementById("settingPomodoro").value = workTime / 60;
+  }
+  if (s.shortBreak) {
+    shortBreak = s.shortBreak;
+    document.getElementById("settingShortBreak").value = shortBreak / 60;
+  }
+  if (s.longBreak) {
+    longBreak = s.longBreak;
+    document.getElementById("settingLongBreak").value = longBreak / 60;
+  }
+  if (s.pomodorosUntilLongBreak) {
+    pomodorosUntilLongBreak = s.pomodorosUntilLongBreak;
+    document.getElementById("settingPomodorosUntil").value =
+      pomodorosUntilLongBreak;
+  }
   timeLeft = workTime;
   renderDots();
   updateDisplay();
