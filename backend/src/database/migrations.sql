@@ -18,7 +18,7 @@ FOREIGN KEY (user_id) REFERENCES users(id)
 CREATE TABLE sessions (
 id SERIAL PRIMARY KEY,
 user_id INTEGER NOT NULL,
-task_id INTEGER NOT NULL,
+task_id INTEGER,
 duration INTEGER,
 type TEXT,
 completed BOOL,

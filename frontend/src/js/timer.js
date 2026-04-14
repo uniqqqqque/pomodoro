@@ -101,7 +101,7 @@ function updateDisplay() {
 async function startTimer() {
   if (isRunning) return;
   isRunning = true;
-  sessionStartedAt = new Date().toISOString();
+  if (!sessionStartedAt) sessionStartedAt = new Date().toISOString();
   intervalId = setInterval(async () => {
     timeLeft--;
     updateDisplay();
@@ -117,6 +117,7 @@ async function startTimer() {
           completed: true,
           started_at: sessionStartedAt,
         });
+        sessionStartedAt = null;
       }
       if (mode === "work") {
         showNotification("Break time!", "Take a great chill!");
@@ -150,6 +151,8 @@ function resetTimer() {
   timeLeft = workTime;
   pomodoroCount = 0;
   mode = "work";
+  localStorage.removeItem("pomodoroTimerState");
+  sessionStartedAt = null;
   updateDisplay();
   updateDots();
 }
@@ -278,6 +281,23 @@ document
     saveSettings();
   });
 
+function saveTimerState() {
+  localStorage.setItem(
+    "pomodoroTimerState",
+    JSON.stringify({ timeLeft, mode, pomodoroCount }),
+  );
+}
+
+function loadTimerState() {
+  const raw = localStorage.getItem("pomodoroTimerState");
+  if (!raw) return false;
+  const s = JSON.parse(raw);
+  timeLeft = s.timeLeft;
+  mode = s.mode;
+  pomodoroCount = s.pomodoroCount;
+  return true;
+}
+
 function saveSettings() {
   localStorage.setItem(
     "pomodoroSettings",
@@ -315,3 +335,12 @@ function loadSettings() {
 }
 
 loadSettings();
+if (loadTimerState()) updateDisplay();
+
+document.querySelector('a[href="stats.html"]').addEventListener("click", (e) => {
+  e.preventDefault();
+  pauseTimer();
+  startBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+  saveTimerState();
+  navigateTo("stats.html");
+});

@@ -1,4 +1,7 @@
-const API_URL = "https://pomodoro.poliscuks.id.lv/api";
+const API_URL =
+  location.hostname === "localhost" || location.hostname === "127.0.0.1"
+    ? `http://${location.hostname}:3002`
+    : "https://pomodoro.poliscuks.id.lv/api";
 
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".animate").forEach((el, i) => {

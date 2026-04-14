@@ -34,14 +34,21 @@ async function loadStats() {
     week[0].week_minutes,
   );
 
+  const activityByHour = Array.from({ length: 24 }, (_, i) => {
+    const found = activity.find((h) => parseInt(h.hour) === i);
+    return found ? parseInt(found.minutes) : 0;
+  });
+
   new Chart(document.getElementById("activity"), {
     type: "bar",
     data: {
-      labels: activity.map((h) => h.hour + ":00"),
+      labels: Array.from({ length: 24 }, (_, i) =>
+        i.toString().padStart(2, "0") + ":00",
+      ),
       datasets: [
         {
           label: "Session",
-          data: activity.map((h) => h.minutes),
+          data: activityByHour,
           backgroundColor: "#f97316",
         },
       ],
@@ -53,7 +60,38 @@ async function loadStats() {
     },
   });
 
+  const streak = calcStreak(heatmap);
+  document.getElementById("streak").textContent = streak;
+
+  const activeDays = heatmap.filter((d) => parseInt(d.sessions) > 0).length;
+  const avgMinutes =
+    activeDays > 0 ? Math.round(total[0].total_minutes / activeDays) : 0;
+  document.getElementById("avgday").textContent = formatMinutes(avgMinutes);
+
   renderHeatmap(heatmap);
+}
+
+function calcStreak(heatmapData) {
+  const sessionMap = {};
+  heatmapData.forEach((d) => {
+    sessionMap[d.date.split("T")[0]] = parseInt(d.sessions);
+  });
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let streak = 0;
+  const cur = new Date(today);
+  while (true) {
+    const dateStr = cur.toISOString().split("T")[0];
+    if (sessionMap[dateStr] > 0) {
+      streak++;
+      cur.setDate(cur.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
 }
 
 function renderHeatmap(data) {
@@ -65,7 +103,20 @@ function renderHeatmap(data) {
   const STEP = CELL + GAP;
   const LEFT_PAD = 28;
   const TOP_PAD = 20;
-  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const MONTHS = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
   const sessionMap = {};
   data.forEach((d) => {
@@ -76,7 +127,7 @@ function renderHeatmap(data) {
   today.setHours(0, 0, 0, 0);
   const startDate = new Date(today);
   startDate.setDate(startDate.getDate() - 52 * 7);
-  startDate.setDate(startDate.getDate() - startDate.getDay());
+  startDate.setDate(startDate.getDate() - ((startDate.getDay() + 6) % 7));
 
   const days = [];
   const cur = new Date(startDate);
@@ -105,9 +156,12 @@ function renderHeatmap(data) {
   let lastMonth = -1;
   days.forEach((date, i) => {
     const week = Math.floor(i / 7);
-    if (date.getDay() === 0 && date.getMonth() !== lastMonth) {
+    if ((date.getDay() + 6) % 7 === 0 && date.getMonth() !== lastMonth) {
       lastMonth = date.getMonth();
-      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      const text = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "text",
+      );
       text.setAttribute("x", LEFT_PAD + week * STEP);
       text.setAttribute("y", TOP_PAD - 6);
       text.setAttribute("font-size", "10");
@@ -119,7 +173,7 @@ function renderHeatmap(data) {
   });
 
   // Day labels
-  ["", "Mon", "", "Wed", "", "Fri", ""].forEach((label, i) => {
+  ["Mon", "", "Wed", "", "Fri", "", ""].forEach((label, i) => {
     if (!label) return;
     const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
     text.setAttribute("x", LEFT_PAD - 4);
@@ -141,7 +195,7 @@ function renderHeatmap(data) {
   // Cells
   days.forEach((date, i) => {
     const week = Math.floor(i / 7);
-    const dow = date.getDay();
+    const dow = (date.getDay() + 6) % 7;
     const dateStr = date.toISOString().split("T")[0];
     const count = sessionMap[dateStr] || 0;
 
@@ -155,9 +209,8 @@ function renderHeatmap(data) {
     rect.style.cursor = "default";
 
     rect.addEventListener("mouseenter", (e) => {
-      const label = count === 0
-        ? "No sessions"
-        : `${count} session${count > 1 ? "s" : ""}`;
+      const label =
+        count === 0 ? "No sessions" : `${count} session${count > 1 ? "s" : ""}`;
       tooltip.textContent = `${label} · ${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
       tooltip.style.opacity = "1";
       tooltip.style.left = e.clientX + 14 + "px";

@@ -46,7 +46,7 @@ router.get("/activity", authMiddleware, async (req, res) => {
   const user_id = req.user.id;
   try {
     const activity = await pool.query(
-      "SELECT EXTRACT(HOUR FROM started_at) as hour, SUM(duration) as minutes FROM sessions WHERE user_id = $1 AND type = 'work' AND completed = true GROUP BY hour ORDER BY hour",
+      "SELECT EXTRACT(HOUR FROM started_at) as hour, SUM(duration) as minutes FROM sessions WHERE user_id = $1 AND type = 'work' AND completed = true AND started_at >= CURRENT_DATE GROUP BY hour ORDER BY hour",
       [user_id],
     );
     return res.status(200).json(activity.rows);
