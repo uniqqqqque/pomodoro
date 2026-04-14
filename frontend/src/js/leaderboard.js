@@ -65,7 +65,7 @@ async function loadLeaderboard(period) {
     }`;
 
     el.innerHTML = `
-      <span class="w-7 text-center text-sm font-bold ${medal ? "text-lg" : "text-slate-500"}">
+      <span class="w-8 text-center font-bold ${medal ? "text-2xl leading-none" : "text-base text-slate-500"}">
         ${medal ?? row.position}
       </span>
       <div class="flex flex-1 flex-col gap-0.5 min-w-0">
