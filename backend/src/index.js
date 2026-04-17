@@ -22,14 +22,14 @@ app.use(cookieParser());
 const rateLimit = require("express-rate-limit");
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, //15min
+  windowMs: 1 * 60 * 1000, //1min
   max: 500,
   message: { message: "Too many requests, please try again later" },
 });
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, //15min
-  max: 10,
+  windowMs: 1 * 60 * 1000, //1min
+  max: 100,
   message: { message: "Too many login attempt, please try again later" },
 });
 
@@ -58,7 +58,6 @@ app.use("/auth", authRoutes);
 
 const sessions = require("./routes/sessions");
 app.use("/sessions", sessions);
-
 
 const stats = require("./routes/stats");
 app.use("/stats", stats);
