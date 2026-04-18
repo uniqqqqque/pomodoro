@@ -31,6 +31,8 @@ let timeLeft = workTime;
 let isRunning = false;
 let intervalId = null;
 let sessionStartedAt = null; // tracked so we store the real start time, not the end time
+let timerStartedAt = null; // Date.now() snapshot when the current run started
+let timeLeftAtStart = 0; // timeLeft value at that same moment
 
 const icons = {
   work: "fa-brain",
@@ -111,63 +113,83 @@ function updateDisplay() {
   ring.style.strokeDashoffset = offset;
 }
 
+// everything that happens when a session hits zero — extracted so both the
+// interval and the visibilitychange handler can call it without duplicating code
+async function handleTimerComplete() {
+  clearInterval(intervalId);
+  isRunning = false;
+  timerStartedAt = null;
+  document.getElementById("startBtn").innerHTML =
+    '<i class="fa-solid fa-play"></i>';
+
+  // only save work sessions, not breaks
+  if (mode === "work") {
+    await apiFetch("/sessions", "POST", {
+      duration: Math.round(workTime / 60),
+      type: "work",
+      completed: true,
+      started_at: sessionStartedAt,
+    });
+    sessionStartedAt = null;
+  }
+
+  if (mode === "work") {
+    showNotification("Break time!", "Take a great chill!");
+  } else {
+    showNotification("Work Time!", "Cmon, just finish your work!");
+  }
+
+  switchMode();
+  updateDisplay();
+
+  if (isSoundEnabled()) {
+    audio.currentTime = 0;
+    audio.play();
+  }
+
+  if (isAutoResumeEnabled()) {
+    startTimer();
+    document.getElementById("startBtn").innerHTML =
+      '<i class="fa-solid fa-pause"></i>';
+  }
+}
+
 async function startTimer() {
   if (isRunning) return;
   isRunning = true;
-  // only record start time on the first tick, not on resume
   if (!sessionStartedAt) sessionStartedAt = new Date().toISOString();
+
+  // snapshot real clock time so we can compute elapsed time accurately
+  // even if the browser throttles setInterval in the background
+  timerStartedAt = Date.now();
+  timeLeftAtStart = timeLeft;
+
   intervalId = setInterval(async () => {
-    timeLeft--;
+    const elapsed = Math.floor((Date.now() - timerStartedAt) / 1000);
+    timeLeft = Math.max(0, timeLeftAtStart - elapsed);
     updateDisplay();
     if (timeLeft <= 0) {
-      clearInterval(intervalId);
-      isRunning = false;
-      document.getElementById("startBtn").innerHTML =
-        '<i class="fa-solid fa-play"></i>';
-
-      // only save work sessions, not breaks
-      if (mode === "work") {
-        await apiFetch("/sessions", "POST", {
-          duration: Math.round(workTime / 60),
-          type: "work",
-          completed: true,
-          started_at: sessionStartedAt,
-        });
-        sessionStartedAt = null;
-      }
-
-      if (mode === "work") {
-        showNotification("Break time!", "Take a great chill!");
-      } else {
-        showNotification("Work Time!", "Cmon, just finish your work!");
-      }
-
-      switchMode();
-      updateDisplay();
-
-      if (isSoundEnabled()) {
-        audio.currentTime = 0;
-        audio.play();
-      }
-
-      if (isAutoResumeEnabled()) {
-        startTimer();
-        document.getElementById("startBtn").innerHTML =
-          '<i class="fa-solid fa-pause"></i>';
-      }
+      await handleTimerComplete();
     }
   }, 1000);
 }
 
 function pauseTimer() {
   if (!isRunning) return;
+  // sync timeLeft to actual elapsed time before stopping the interval
+  if (timerStartedAt) {
+    const elapsed = Math.floor((Date.now() - timerStartedAt) / 1000);
+    timeLeft = Math.max(0, timeLeftAtStart - elapsed);
+  }
   clearInterval(intervalId);
   isRunning = false;
+  timerStartedAt = null;
 }
 
 function resetTimer() {
   isRunning = false;
   clearInterval(intervalId);
+  timerStartedAt = null;
   timeLeft = workTime;
   pomodoroCount = 0;
   mode = "work";
@@ -224,6 +246,19 @@ function showNotification(title, body) {
 }
 
 requestNotificationPermission();
+
+// when the tab becomes visible again, immediately recalculate based on real elapsed time
+// this handles the case where the browser throttled or paused the interval entirely
+document.addEventListener("visibilitychange", async () => {
+  if (!document.hidden && isRunning && timerStartedAt) {
+    const elapsed = Math.floor((Date.now() - timerStartedAt) / 1000);
+    timeLeft = Math.max(0, timeLeftAtStart - elapsed);
+    updateDisplay();
+    if (timeLeft <= 0) {
+      await handleTimerComplete();
+    }
+  }
+});
 
 // if the user toggled notifications on but the browser denied permission, turn it back off
 document.getElementById("toggleNotifications").addEventListener("click", () => {

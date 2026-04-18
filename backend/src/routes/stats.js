@@ -32,15 +32,15 @@ router.get("/today", authMiddleware, async (req, res) => {
   }
 });
 
-// last 7 days
-router.get("/week", authMiddleware, async (req, res) => {
+// last 30 days
+router.get("/month", authMiddleware, async (req, res) => {
   const user_id = req.user.id;
   try {
-    const week = await pool.query(
-      "SELECT COUNT(*) as week_sessions, SUM(duration) as week_minutes FROM sessions WHERE user_id = $1 AND type = 'work' AND completed = true AND started_at >= CURRENT_DATE - INTERVAL '7 days'",
+    const month = await pool.query(
+      "SELECT COUNT(*) as month_sessions, SUM(duration) as month_minutes FROM sessions WHERE user_id = $1 AND type = 'work' AND completed = true AND started_at >= NOW() - INTERVAL '30 days'",
       [user_id],
     );
-    return res.status(200).json(week.rows);
+    return res.status(200).json(month.rows);
   } catch (err) {
     return res.status(500).json({ message: "Server error" });
   }

@@ -28,7 +28,7 @@ async function loadStats() {
   const utcOffset = -new Date().getTimezoneOffset();
   const total = await apiFetch("/stats/total");
   const today = await apiFetch(`/stats/today?utcOffset=${utcOffset}`);
-  const week = await apiFetch("/stats/week");
+  const month = await apiFetch("/stats/month");
   const activity = await apiFetch(`/stats/activity?utcOffset=${utcOffset}`);
   const heatmap = await apiFetch(`/stats/heatmap?utcOffset=${utcOffset}`);
 
@@ -38,8 +38,8 @@ async function loadStats() {
   document.getElementById("today").textContent = formatMinutes(
     today[0]?.today_minutes || 0,
   );
-  document.getElementById("week").textContent = formatMinutes(
-    week[0]?.week_minutes || 0,
+  document.getElementById("month").textContent = formatMinutes(
+    month[0]?.month_minutes || 0,
   );
 
   // fill in all 24 hours so the chart always shows a full day even if some hours are empty
@@ -115,10 +115,20 @@ function renderHeatmap(data) {
   const GAP = 3;
   const STEP = CELL + GAP;
   const LEFT_PAD = 28; // space for Mon/Wed/Fri labels
-  const TOP_PAD = 20;  // space for month labels
+  const TOP_PAD = 20; // space for month labels
   const MONTHS = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ];
 
   // build a quick lookup: "2025-04-14" → session count
